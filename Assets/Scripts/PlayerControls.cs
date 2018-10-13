@@ -1,258 +1,112 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
-
-
-public enum PlayerStates
-{
-	startTurn = 0,
-	playing = 1,
-	updateBoard = 2,
-	endTurn = 3,
-
-}
-
 
 public class PlayerControls : MonoBehaviour {
 
-	BoardManager bm;
-	public PlaceScript selectedPlace;
-	public bool isDestroying;
+	private BoardManager boardManager;
+	public PlaceScript selected;
+    public float timer = 0;
 
-	public PlayerStates currState = PlayerStates.startTurn;
-
-	public float destroyTimer;
-
-	// Use this for initialization
-	void Start () 
+    // Use this for initialization
+    void Start () 
 	{
-		bm = transform.GetComponent<BoardManager>();
+		boardManager = transform.GetComponent<BoardManager>();
 	}
 	
 	// Update is called once per frame
 	void Update () 
 	{
-		switch(currState)
-		{
-		case PlayerStates.startTurn:
-			bm.ShowDestroyableTiles();
-			currState = PlayerStates.playing;
-			break;
-
-		case PlayerStates.playing:
-			if(bm.is1P)
-			{
-				if(bm.player == 1)
-				{
-					Controls();
-				}
-			}
-			else
-			{
-				Controls();
-			}
-		
-			break;
-
-		case PlayerStates.updateBoard:
-			bm.clearBoard();
-			bm.ShowDestroyableTiles();
-			currState = PlayerStates.playing;
-			break;
-
-		case PlayerStates.endTurn:
-			bm.clearBoard();
-			currState = PlayerStates.startTurn;
-			break;
-
-		default:
-			Debug.Log("Player states is fucked");
-			break;
-
-
-		}
-
+		MouseControls();
 	}
 
-	void Controls ()
+	void MouseControls()
 	{
 		RaycastHit hit;
-		
-		for (int i = 0; i < Input.touchCount; i++)
-		{
-			Touch touch = Input.GetTouch(i);
-			
-			// -- Tap: quick touch & release
-			// ------------------------------------------------
-			if (touch.phase == TouchPhase.Began && touch.tapCount == 1)
-			{
-				
-				Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(i).position);
-				
-				if (Physics.Raycast(ray,out hit))
-				{
-					if(hit.collider.gameObject.GetComponent<PlaceScript>())
-					{
-						PlaceScript temp = hit.collider.gameObject.GetComponent<PlaceScript>();
-						if(!isDestroying)
-						{
-							MoveTile (temp);
-							MoveAttacker(temp);
-						}
-
-						if(temp.GetTile () && temp.GetTile().team == 0 && !temp.GetAttacker())
-						{
-							destroyTimer+=Time.deltaTime;
-							//DestroyTile(temp);
-						}
-					}
-
-					/*
-					if(hit.collider.gameObject.name == "Delete")
-					{
-						if(!selectedPlace)
-						{
-							if(!isDestroying)
-							{
-								bm.ShowDestroyableTiles();
-								isDestroying = true;
-							}
-							else
-							{
-								bm.clearBoard();
-								isDestroying = false;
-							}
-						}
-					}
-					*/
-				}
-				
-			}
-		}
-
 		Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 		if(Physics.Raycast (mouseRay,out hit))
 		{
 			if(hit.collider.gameObject.GetComponent<PlaceScript>())
 			{
 				PlaceScript temp = hit.collider.gameObject.GetComponent<PlaceScript>();
-			
-				if(Input.GetMouseButton(0))
+                boardManager.ShowBreakableTiles();
+                if (Input.GetMouseButtonUp(0))
 				{
-					if(temp.canBeDestroyed && selectedPlace == null)
-					{
-						destroyTimer+=Time.deltaTime;
-						if (destroyTimer > 0){
-							if(temp.GetTile().isWalkable)
-								temp.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.walkBreak1;
-							else
-								temp.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.blockBreak1;
-						}
-						if(destroyTimer > 1)
-						{
-							if(temp.GetTile().isWalkable)
-								temp.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.walkBreak2;
-							else
-								temp.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.blockBreak2;
-						}
-						if(destroyTimer > 2)
-						{
-							DestroyTile(temp);
-							destroyTimer = 0;
-						}
+					MoveTile(temp);
+                    MoveAttacker(temp);
+                    timer = 0;
+                }
 
-					}
-				}
-				else
-				{
-					destroyTimer = 0;
-				}
-
-				if(Input.GetMouseButtonDown(0))
-				{
-
-					if(!isDestroying)
-					{
-						MoveTile (temp);
-						MoveAttacker(temp);
-					}
-
-
-				}
-				
-				/*
-				if(hit.collider.gameObject.name == "Delete")
-				{
-					if(!selectedPlace)
-					{
-						if(!isDestroying)
-						{
-							bm.ShowDestroyableTiles();
-							isDestroying = true;
-						}
-						else
-						{
-							bm.clearBoard();
-							isDestroying = false;
-						}
-					}
-				}*/
-				
+                // I mean this is not the best way to do this...
+                // If the mouse button is held down then it increases the timer
+                // and progresses through the animation.
+                if (Input.GetMouseButton(0))
+                {
+                    if (temp.isBreakable)
+                    {
+                        timer += Time.deltaTime;
+                        if (timer > 0f)
+                        {
+                            if (temp.blockType == 1)
+                                temp.blockType = 5;
+                            if (temp.blockType == 2)
+                                temp.blockType = 7;
+                        }
+                    }
+                    if (timer > 1f)
+                    {
+                        if (temp.blockType == 5)
+                            temp.blockType = 6;
+                        if (temp.blockType == 7)
+                            temp.blockType = 8;
+                    }
+                    if (timer > 2f)
+                    {
+                        DestroyTile(temp);
+                        timer = 0f;
+                    }
+                }
 			}
 		}
 	}
 
-
-	// Selects/ Deselects Hand Tile. Moves Hand Tile to available place on gameboard.
 	void MoveTile(PlaceScript place)
 	{
-		if(bm.player == place.playerHand)
+		if(boardManager.curr_player == place.playerHand)
 		{
-			//	Selecting a hand tile for movement. Changes the sprite to its selected version.
-			//	Shows all places that the player can move the tile to. 
-			if(!selectedPlace)
+			// if the player doesn't have anything selected from their hand
+            // make what they clicked on, the selected tile.
+			if(!selected)
 			{
-				selectedPlace = place;
-				if(selectedPlace.GetTile().isWalkable)
-					selectedPlace.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.s_Walk;
-				else
-					selectedPlace.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.s_Block;
-				bm.ShowPlaceableTiles();
-				Debug.Log ("Player " +bm.player + " has selected a hand tile.");
-			}
+				selected = place;
+				selected.blockType *= -1;
+				Debug.Log ("Player has selected a hand tile.");
+                boardManager.PossibleTilePlacements();
+            }
 			else
 			{
-			 	//	If the player selects the same tile that’s already selected. It deselects the tile and 
-			 	//	clears any changes made to the gameboard.
-				if(selectedPlace == place)
+				// deselect tile.
+				if(selected == place)
 				{
-					if(selectedPlace.GetTile().isWalkable)
-						selectedPlace.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.walk;
-					else
-						selectedPlace.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.block;
-					selectedPlace = null;
-					bm.clearBoard();
-					Debug.Log ("Player " +bm.player + " has deselected a hand tile.");
+					selected.blockType *= -1;
+                    boardManager.ClearBoard();
+                    selected = null;
+					Debug.Log ("Player has deselected a hand tile.");
 				}
 			}
 		}
 		else
 		{
-			if(selectedPlace)
+			// Move the tile from the player's hand.
+			if(selected && selected.GetAttacker() == null)
 			{
-				if(place.canBePlaced)
+				if(place.blockType == -5)
 				{
-					place.SetTile(selectedPlace.GetTile());
-					place.GetTile().transform.position = new Vector3 (place.transform.position.x,bm.pieceOffset,place.transform.position.z);
-					if(place.GetTile().isWalkable)
-						place.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.walk;
-					else
-						place.GetTile().transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bm.block;
-					selectedPlace.SetTile(null);
-					selectedPlace = null;
-					bm.moves--;
-					currState = PlayerStates.updateBoard;
-					//bm.clearBoard();
-					Debug.Log ("Player " +bm.player + " has placed a tile.");
+					place.blockType = -selected.blockType;
+					selected.blockType = 0;
+					Debug.Log(string.Format("Tile x:{0}, z:{1} --> x:{2}, z:{3}", selected.xPos, selected.zPos, place.xPos, place.zPos));
+                    boardManager.ClearBoard();
+                    boardManager.SubtractMove(1);
+                    selected = null;
 				}
 			}
 		}
@@ -260,63 +114,58 @@ public class PlayerControls : MonoBehaviour {
 
 	void MoveAttacker(PlaceScript place)
 	{
-		if(place.GetAttacker() && bm.player == place.GetAttacker().team)
-		{
-			if(!selectedPlace)
-			{
-				selectedPlace = place;
-				selectedPlace.GetAttacker().gameObject.GetComponent<Renderer>().material.color = Color.black;
-				if(bm.ShowPossibleAttackerMove(place)){}
-				Debug.Log ("Player " +bm.player + " has selected an attacker.");
-			}
-			else
-			{
-				if(selectedPlace == place)
-				{
-					selectedPlace.GetAttacker().gameObject.GetComponent<Renderer>().material.color = Color.white;
-					selectedPlace = null;
-					bm.clearBoard();
-					Debug.Log ("Player " +bm.player + " has deselected an attacker.");
-				}
-			}
-		}
-		else
-		{
-			if(selectedPlace)
-			{
-				if(place.canMove)
-				{
-					place.SetAttacker(selectedPlace.GetAttacker());
-					place.GetAttacker().transform.position = new Vector3 (place.transform.position.x,0.3f,place.transform.position.z);
-					place.GetAttacker().gameObject.GetComponent<Renderer>().material.color = Color.white;
-					selectedPlace.SetAttacker(null);
-					selectedPlace = null;
-					bm.moves--;
-					currState = PlayerStates.updateBoard;
-					//bm.clearBoard();
-					Debug.Log ("Player " +bm.player + " has moved an attacker.");
-				}
-			}
-		}
+        if (place.GetAttacker() && boardManager.curr_player == place.GetAttacker().team)
+        {
+            if (!selected)
+            {
+                selected = place;
+                // TODO: change colour of attacker
+                boardManager.PossibleAttackerMoves(place);
+            }
+            else
+            {
+                if(selected == place)
+                {
+                    boardManager.ClearBoard();
+                    // TODO: set colour of attacker to default
+                    selected = null;
+                }
+            }
+        }
+        else
+        {
+            // Move the attacker.
+            if (selected && selected.GetAttacker() != null)
+            {
+                // if place is a walkable tile or a base tile, then set the attacker to place
+                if (place.blockType == -1 || place.blockType == -3 || place.blockType == -4)
+                {
+                    place.SetAttacker(selected.GetAttacker());
+                    selected.GetAttacker().transform.position = new Vector3(place.transform.position.x, boardManager.pieceOffset, place.transform.position.z);
+                    // TODO: set colour of attacker to default
+                    selected.SetAttacker(null);
+                    boardManager.ClearBoard();
+                    boardManager.SubtractMove(1);
+                    selected = null;
+                }
+            }
+        }
 	}
 
-	void DestroyTile(PlaceScript place)
-	{
 
-		if(place.canBeDestroyed)
-		{
-			if(place.GetTile().isWalkable)
-				bm.moves--;
-			else
-				bm.moves-=2;
+    void DestroyTile(PlaceScript place)
+    {
+        if(place.blockType == 6)
+        {
+            boardManager.SubtractMove(1);
+            place.blockType = 0;
+        }
+        if(place.blockType == 8)
+        {
+            boardManager.SubtractMove(2);
+            place.blockType = 0;
+        }
+        boardManager.ClearBoard();
+    }
 
-			place.GetTile().transform.parent = bm.transform.GetChild(1).transform;
-			bm.tileDeck.Enqueue(place.GetTile());
-			place.GetTile ().gameObject.SetActive(false);
-			place.SetTile (null);
-			isDestroying = false;
-			bm.clearBoard();
-		}
-		
-	}
 }

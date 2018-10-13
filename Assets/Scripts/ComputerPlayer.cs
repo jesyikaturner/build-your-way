@@ -11,7 +11,7 @@ public enum AIState{
 
 public class ComputerPlayer : MonoBehaviour {
 
-	BoardManager bm;
+/*	BoardManager bm;
 	public AIState currentState = AIState.wait;
 	public int rand, number;
 	public PlaceScript nTile;
@@ -373,7 +373,7 @@ public class ComputerPlayer : MonoBehaviour {
 			}
 		}else{
 			currentState = AIState.wait;
-		}*/
+		}
 
 
 	void CompMoveAttacker(PlaceScript currPlace, PlaceScript newPlace){
@@ -412,5 +412,5 @@ public class ComputerPlayer : MonoBehaviour {
 			}
 		}
 	}
-
+    */
 }
