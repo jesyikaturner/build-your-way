@@ -1,0 +1,4 @@
+hello world. this is a test for text asset.
+hoping that this comes out on a next line.
+—> testing symbols $#^*%#@@… 			tabbing here. lets see if the spaces turn up.
+blah blah blah blah
