@@ -45,7 +45,7 @@ public class BoardManager : MonoBehaviour {
 			Debug.LogError("Trying to do more than 2 moves at once.");
 	}
 
-	void SwitchPlayer()
+	private void SwitchPlayer()
 	{
 		if(curr_moves < 1)
 		{
@@ -66,7 +66,7 @@ public class BoardManager : MonoBehaviour {
 			if(p.blockType == 0)
 			{
                 Debug.Log("GAME --> DRAW NEW TILE");
-                if (Random.Range(0,100) <= 35)
+                if (Random.Range(0,100) <= 10)
 					p.blockType = 2;
 				else
 					p.blockType = 1;
@@ -106,22 +106,6 @@ public class BoardManager : MonoBehaviour {
 			}
 		}
 	}
-
-    private PlaceScript CreatePlaceTile(int x, int z, int offset, int blockType, string name)
-    {
-        PlaceScript placeTile = Instantiate(placement, new Vector3(x + offset * boardSpacing, 0, z * boardSpacing), Quaternion.identity);
-        placeTile.name = name + ": " + z + ", " + x;
-        return placeTile;
-    }
-
-    // Creates an attacker and assigns a team to it
-    AttackerScript CreateAttacker(int team, int x, int z, string name)
-    {
-        AttackerScript attacker = Instantiate(playerAttacker, new Vector3(x, pieceOffset, z), Quaternion.identity);
-        attacker.team = team;
-        attacker.name = name;
-        return attacker;
-    }
 
 	//applies a preset layout to the board
 	void BoardLayout(int[,] layout, int layoutLength)
@@ -293,6 +277,21 @@ public class BoardManager : MonoBehaviour {
 			Debug.Log("Player 2 Wins!");
 
 	}
-		
+
+    private PlaceScript CreatePlaceTile(int x, int z, int offset, int blockType, string name)
+    {
+        PlaceScript placeTile = Instantiate(placement, new Vector3(x + offset * boardSpacing, 0, z * boardSpacing), Quaternion.identity);
+        placeTile.name = name + ": " + z + ", " + x;
+        return placeTile;
+    }
+
+    // Creates an attacker and assigns a team to it
+    private AttackerScript CreateAttacker(int team, int x, int z, string name)
+    {
+        AttackerScript attacker = Instantiate(playerAttacker, new Vector3(x, pieceOffset, z), Quaternion.identity);
+        attacker.team = team;
+        attacker.name = name;
+        return attacker;
+    }
 
 }

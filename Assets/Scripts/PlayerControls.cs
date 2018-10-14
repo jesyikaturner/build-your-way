@@ -34,6 +34,10 @@ public class PlayerControls : MonoBehaviour {
 					MoveTile(temp);
                     MoveAttacker(temp);
                     timer = 0;
+                    if (temp.blockType == 5 || temp.blockType == 6)
+                        temp.blockType = 1;
+                    if (temp.blockType == 7 || temp.blockType == 8)
+                        temp.blockType = 2;
                 }
 
                 // I mean this is not the best way to do this...
@@ -112,6 +116,9 @@ public class PlayerControls : MonoBehaviour {
 		}
 	}
 
+    /*
+     * MOVE ATTACKER
+     */ 
 	void MoveAttacker(PlaceScript place)
 	{
         if (place.GetAttacker() && boardManager.curr_player == place.GetAttacker().team)
@@ -119,7 +126,7 @@ public class PlayerControls : MonoBehaviour {
             if (!selected)
             {
                 selected = place;
-                // TODO: change colour of attacker
+                selected.GetAttacker().ToggleSelect();
                 boardManager.PossibleAttackerMoves(place);
             }
             else
@@ -127,7 +134,7 @@ public class PlayerControls : MonoBehaviour {
                 if(selected == place)
                 {
                     boardManager.ClearBoard();
-                    // TODO: set colour of attacker to default
+                    selected.GetAttacker().ToggleSelect();
                     selected = null;
                 }
             }
@@ -142,7 +149,7 @@ public class PlayerControls : MonoBehaviour {
                 {
                     place.SetAttacker(selected.GetAttacker());
                     selected.GetAttacker().transform.position = new Vector3(place.transform.position.x, boardManager.pieceOffset, place.transform.position.z);
-                    // TODO: set colour of attacker to default
+                    selected.GetAttacker().ToggleSelect();
                     selected.SetAttacker(null);
                     boardManager.ClearBoard();
                     boardManager.SubtractMove(1);
