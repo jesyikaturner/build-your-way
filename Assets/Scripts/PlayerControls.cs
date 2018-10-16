@@ -34,43 +34,26 @@ public class PlayerControls : MonoBehaviour {
 					MoveTile(temp);
                     MoveAttacker(temp);
                     timer = 0;
-                    if (temp.blockType == 5 || temp.blockType == 6)
-                        temp.blockType = 1;
-                    if (temp.blockType == 7 || temp.blockType == 8)
-                        temp.blockType = 2;
+                    temp.isBreaking = false;
                 }
 
-                // I mean this is not the best way to do this...
                 // If the mouse button is held down then it increases the timer
                 // and progresses through the animation.
                 if (Input.GetMouseButton(0))
                 {
                     if (temp.isBreakable)
-                    {
                         timer += Time.deltaTime;
-                        if (timer > 0f)
-                        {
-                            if (temp.blockType == 1)
-                                temp.blockType = 5;
-                            if (temp.blockType == 2)
-                                temp.blockType = 7;
-                        }
-                    }
-                    if (timer > 1f)
-                    {
-                        if (temp.blockType == 5)
-                            temp.blockType = 6;
-                        if (temp.blockType == 7)
-                            temp.blockType = 8;
-                    }
-                    if (timer > 2f)
+
+                    if (temp.BreakAnimation(timer) != 0)
                     {
                         DestroyTile(temp);
                         timer = 0f;
+                        temp.isBreaking = false;
                     }
                 }
 			}
 		}
+
 	}
 
 	void MoveTile(PlaceScript place)
@@ -82,7 +65,7 @@ public class PlayerControls : MonoBehaviour {
 			if(!selected)
 			{
 				selected = place;
-				selected.blockType *= -1;
+                selected.ToggleSelectable();
 				Debug.Log ("Player has selected a hand tile.");
                 boardManager.PossibleTilePlacements();
             }
@@ -91,7 +74,7 @@ public class PlayerControls : MonoBehaviour {
 				// deselect tile.
 				if(selected == place)
 				{
-					selected.blockType *= -1;
+                    selected.ToggleSelectable();
                     boardManager.ClearBoard();
                     selected = null;
 					Debug.Log ("Player has deselected a hand tile.");
@@ -103,13 +86,14 @@ public class PlayerControls : MonoBehaviour {
 			// Move the tile from the player's hand.
 			if(selected && selected.GetAttacker() == null)
 			{
-				if(place.blockType == -5)
+				if(place.GetState("EMPTY"))
 				{
-					place.blockType = -selected.blockType;
-					selected.blockType = 0;
+                    place.SetState(selected.GetState());
+					selected.SetState("EMPTY");
 					Debug.Log(string.Format("Tile x:{0}, z:{1} --> x:{2}, z:{3}", selected.xPos, selected.zPos, place.xPos, place.zPos));
                     boardManager.ClearBoard();
                     boardManager.SubtractMove(1);
+                    selected.ToggleSelectable();
                     selected = null;
 				}
 			}
@@ -127,7 +111,7 @@ public class PlayerControls : MonoBehaviour {
             {
                 selected = place;
                 selected.GetAttacker().ToggleSelect();
-                boardManager.PossibleAttackerMoves(place);
+                boardManager.PossibleAttackerMoves(selected);
             }
             else
             {
@@ -145,7 +129,7 @@ public class PlayerControls : MonoBehaviour {
             if (selected && selected.GetAttacker() != null)
             {
                 // if place is a walkable tile or a base tile, then set the attacker to place
-                if (place.blockType == -1 || place.blockType == -3 || place.blockType == -4)
+                if (place.isSelected)
                 {
                     place.SetAttacker(selected.GetAttacker());
                     selected.GetAttacker().transform.position = new Vector3(place.transform.position.x, boardManager.pieceOffset, place.transform.position.z);
@@ -162,15 +146,15 @@ public class PlayerControls : MonoBehaviour {
 
     void DestroyTile(PlaceScript place)
     {
-        if(place.blockType == 6)
+        if(place.GetState("WALK"))
         {
             boardManager.SubtractMove(1);
-            place.blockType = 0;
+            place.SetState("EMPTY");
         }
-        if(place.blockType == 8)
+        if(place.GetState("BLOCK"))
         {
             boardManager.SubtractMove(2);
-            place.blockType = 0;
+            place.SetState("EMPTY");
         }
         boardManager.ClearBoard();
     }

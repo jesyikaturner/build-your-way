@@ -21,10 +21,10 @@ public class ComputerPlayer : MonoBehaviour {
 
     void Update ()
     {
-        timer += Time.deltaTime;
         if(boardManager.curr_player == 2)
         {
-            if(timer > 1f)
+            timer += Time.deltaTime;
+            if (timer > 1f)
             {
                 if (!PlaceTile())
                     if (!MoveAttacker())
@@ -41,18 +41,18 @@ public class ComputerPlayer : MonoBehaviour {
     private bool PlaceTile()
     {
         possibleMoves.Clear();
-        tile = boardManager.playerHands[Random.Range(0,boardManager.playerHands.Length-1)];
+        tile = boardManager.playerHands[Random.Range(0,boardManager.playerHands.Length)];
 
         while(tile.playerHand != 2)
         {
-            tile = boardManager.playerHands[Random.Range(0, boardManager.playerHands.Length-1)];
+            tile = boardManager.playerHands[Random.Range(0, boardManager.playerHands.Length)];
         }
 
         boardManager.PossibleTilePlacements();
 
         foreach(PlaceScript cell in boardManager.boardArray)
         {
-            if(cell.blockType == -5)
+            if(cell.isSelected)
             {
                 possibleMoves.Add(cell);
             }
@@ -60,11 +60,12 @@ public class ComputerPlayer : MonoBehaviour {
 
         if (possibleMoves.Count > 0)
         {
-            possibleMoves[Random.Range(0, possibleMoves.Count - 1)].blockType = tile.blockType;
+            possibleMoves[Random.Range(0, possibleMoves.Count)].SetState(tile.GetState());
             boardManager.SubtractMove(1);
         }
         else
             return false;
+        tile.SetState("EMPTY");
         tile = null;
         boardManager.ClearBoard();
         return true;
@@ -93,7 +94,7 @@ public class ComputerPlayer : MonoBehaviour {
 
         foreach (PlaceScript cell in boardManager.boardArray)
         {
-            if(cell.blockType == -1 || cell.blockType == -3 || cell.blockType == -4)
+            if(cell.isSelected)
             {
                 possibleMoves.Add(cell);
             }
@@ -102,7 +103,7 @@ public class ComputerPlayer : MonoBehaviour {
         if (possibleMoves.Count == 0)
             return false;
 
-        PlaceScript place = possibleMoves[Random.Range(0, possibleMoves.Count - 1)];
+        PlaceScript place = possibleMoves[Random.Range(0, possibleMoves.Count)];
 
         place.SetAttacker(tile.GetAttacker());
         place.GetAttacker().transform.position = new Vector3(place.transform.position.x, boardManager.pieceOffset, place.transform.position.z);
@@ -125,17 +126,17 @@ public class ComputerPlayer : MonoBehaviour {
             }
         }
 
-        PlaceScript place = possibleMoves[Random.Range(0, possibleMoves.Count - 1)];
+        PlaceScript place = possibleMoves[Random.Range(0, possibleMoves.Count)];
 
-        if (place.blockType == 1)
+        if (place.GetState("WALK"))
         {
             boardManager.SubtractMove(1);
-            place.blockType = 0;
+            place.SetState("EMPTY");
         }
-        if (place.blockType == 2)
+        if (place.GetState("BLOCK"))
         {
             boardManager.SubtractMove(2);
-            place.blockType = 0;
+            place.SetState("EMPTY");
         }
         boardManager.ClearBoard();
 

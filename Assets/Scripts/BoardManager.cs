@@ -34,7 +34,6 @@ public class BoardManager : MonoBehaviour {
 	void Update () {
 		SwitchPlayer();
 		FillHands();
-        CheckForWinners();
 	}
 
 	public void SubtractMove(int subtract)
@@ -63,14 +62,13 @@ public class BoardManager : MonoBehaviour {
 	{
 		foreach(PlaceScript p in playerHands)
 		{
-			if(p.blockType == 0)
-			{
-                Debug.Log("GAME --> DRAW NEW TILE");
-                if (Random.Range(0,100) <= 10)
-					p.blockType = 2;
-				else
-					p.blockType = 1;
-			}
+            if(p.state == PlaceScript.PlaceState.EMPTY)
+            {
+                if (Random.Range(0, 100) <= 25)
+                    p.SetState("BLOCK");
+                else
+                    p.SetState("WALK");
+            }
 		}
 	}
 		
@@ -84,21 +82,21 @@ public class BoardManager : MonoBehaviour {
 				// Creates Player Hands
 				if(z < 3 && x < 1)
 				{
-                    PlaceScript handTile = CreatePlaceTile(x, z, -2, 0, "Player 1 Hand");
+                    PlaceScript handTile = CreatePlaceTile(x, z, -2, "Player 1 Hand");
 					handTile.playerHand = 1;
 					playerHands[counter] = handTile;
 					counter++;
 				}
 				if(z > height - 4 && x > width - 2)
 				{
-                    PlaceScript handTile = CreatePlaceTile(x, z, 2, 0, "Player 2 Hand");
+                    PlaceScript handTile = CreatePlaceTile(x, z, 2, "Player 2 Hand");
 					handTile.playerHand = 2;
 					playerHands[counter] = handTile;
 					counter++;
 				}
 
                 // Creates an Empty Board
-                PlaceScript placeTile = CreatePlaceTile(x, z, 0, 0, "Place");
+                PlaceScript placeTile = CreatePlaceTile(x, z, 0, "Place");
 				placeTile.transform.parent = transform.GetChild (0).transform;
 				placeTile.xPos = x;
 				placeTile.zPos = z;
@@ -110,33 +108,27 @@ public class BoardManager : MonoBehaviour {
 	//applies a preset layout to the board
 	void BoardLayout(int[,] layout, int layoutLength)
 	{
-		for (int i = 0; i < layoutLength; i++)
-		{
-			foreach(PlaceScript p in boardArray)
-			{
-				if(p.zPos == layout[i,0] && p.xPos == layout[i,1])
-				{
-					if(i < 3)
-						p.blockType = 3;
-					if(i > 2)
-						p.blockType = 4;
-					if(i > 5)
-						p.blockType = 2;
-				}
-			}
-		}
+        for (int i = 0; i < layoutLength; i++)
+        {
+            foreach (PlaceScript p in boardArray)
+            {
+                if (p.zPos == layout[i, 0] && p.xPos == layout[i, 1])
+                {
+                    if (i < 3)
+                        p.SetState("BASE1");
+                    if (i > 2)
+                        p.SetState("BASE2");
+                    if (i > 5)
+                        p.SetState("BLOCK");
 
-		foreach(PlaceScript p in boardArray)
-		{
-			if(p.blockType == 3)
-			{
-				p.SetAttacker(CreateAttacker(1,p.xPos,p.zPos,"Player 1 Attacker"));
-			}
-			if(p.blockType == 4)
-			{
-				p.SetAttacker(CreateAttacker(2,p.xPos,p.zPos, "Player 2 Attacker"));
-			}
-		}
+                    if (p.GetState("BASE1"))
+                        p.SetAttacker(CreateAttacker(1, p.xPos, p.zPos, "Player 1 Attacker"));
+                    if (p.GetState("BASE2"))
+                        p.SetAttacker(CreateAttacker(2, p.xPos, p.zPos, "Player 2 Attacker"));
+                }
+
+            }
+        }
 	}
 
     public bool PossibleAttackerMoves (PlaceScript place)
@@ -147,10 +139,9 @@ public class BoardManager : MonoBehaviour {
         {
             if(Mathf.Abs(cell.xPos - place.xPos) + Mathf.Abs(cell.zPos - place.zPos) <= 1)
             {
-                if((cell.blockType == 1 || cell.blockType == 3 || cell.blockType == 4) && !cell.GetAttacker())
+                if((cell.GetState("WALK") || cell.GetState("BASE1") || cell.GetState("BASE2")) && !cell.GetAttacker())
                 {
-
-                    cell.blockType *= -1;
+                    cell.ToggleSelectable();
                     canMove = true;
                 }
             }
@@ -161,10 +152,8 @@ public class BoardManager : MonoBehaviour {
     public void ClearBoard()
     {
         foreach(PlaceScript place in boardArray){
-            if (place.blockType == -1 || place.blockType == -3 || place.blockType == -4)
-                place.blockType *= -1;
-            if (place.blockType == -5)
-                place.blockType = 0;
+            if (place.isSelected)
+                place.ToggleSelectable();
             if (place.isBreakable)
                 place.isBreakable = false;
         }
@@ -182,23 +171,23 @@ public class BoardManager : MonoBehaviour {
                     {
                         if(x < boardWidth - 1)
                         {
-                            if(boardArray[x + 1,z].blockType == 0)
-                                boardArray[x + 1, z].blockType = -5;
+                            if(boardArray[x + 1,z].GetState("EMPTY"))
+                                boardArray[x + 1, z].ToggleSelectable();
                         }
                         if (x > 0 )
                         {
-                            if (boardArray[x - 1, z].blockType == 0)
-                                boardArray[x - 1, z].blockType = -5;
+                            if (boardArray[x - 1, z].GetState("EMPTY"))
+                                boardArray[x - 1, z].ToggleSelectable();
                         }
                         if (z < boardHeight - 1)
                         {
-                            if (boardArray[x, z + 1].blockType == 0)
-                                boardArray[x, z + 1].blockType = -5;
+                            if (boardArray[x, z + 1].GetState("EMPTY"))
+                                boardArray[x, z + 1].ToggleSelectable();
                         }
                         if (z > 0)
                         {
-                            if (boardArray[x, z - 1].blockType == 0)
-                                boardArray[x, z - 1].blockType = -5;
+                            if (boardArray[x, z - 1].GetState("EMPTY"))
+                                boardArray[x, z - 1].ToggleSelectable();
                         }
                     }
                 }
@@ -218,22 +207,22 @@ public class BoardManager : MonoBehaviour {
                     {
                         if (x < boardWidth - 1)
                         {
-                            if (boardArray[x + 1, z].blockType == 1 || boardArray[x + 1, z].blockType == 2)
+                            if (boardArray[x + 1, z].GetState("WALK") || boardArray[x + 1, z].GetState("BLOCK"))
                                 boardArray[x + 1, z].isBreakable = true;
                         }
                         if (x > 0)
                         {
-                            if (boardArray[x - 1, z].blockType == 1 || boardArray[x - 1, z].blockType == 2)
+                            if (boardArray[x - 1, z].GetState("WALK") || boardArray[x - 1, z].GetState("BLOCK"))
                                 boardArray[x - 1, z].isBreakable = true; 
                         }
                         if (z < boardHeight - 1)
                         {
-                            if (boardArray[x, z + 1].blockType == 1 || boardArray[x, z + 1].blockType == 2)
+                            if (boardArray[x, z + 1].GetState("WALK") || boardArray[x, z + 1].GetState("BLOCK"))
                                 boardArray[x, z + 1].isBreakable = true;
                         }
                         if (z > 0)
                         {
-                            if (boardArray[x, z - 1].blockType == 1 || boardArray[x, z - 1].blockType == 2)
+                            if (boardArray[x, z - 1].GetState("WALK") || boardArray[x, z - 1].GetState("BLOCK"))
                                 boardArray[x, z - 1].isBreakable = true;
                         }
                     }
@@ -242,45 +231,10 @@ public class BoardManager : MonoBehaviour {
         }
     }
 
-	void CheckForWinners()
-	{
-        int p1_winCounter = 0;
-        int p2_winCounter = 0;
-
-        foreach (PlaceScript p in boardArray)
-		{
-			if(p.blockType == 3)
-			{
-				if(p.GetAttacker())
-				{
-					if(p.GetAttacker().team == 2)
-						p1_winCounter++;
-					else
-						p1_winCounter = 0;
-				}
-			}
-			if(p.blockType == 4)
-			{
-				if(p.GetAttacker())
-				{
-					if(p.GetAttacker().team == 2)
-						p1_winCounter++;
-					else
-						p1_winCounter = 0;
-				}
-			}
-
-		}
-		if(p1_winCounter > 3)
-			Debug.Log("Player 1 Wins!");
-		if(p2_winCounter > 3)
-			Debug.Log("Player 2 Wins!");
-
-	}
-
-    private PlaceScript CreatePlaceTile(int x, int z, int offset, int blockType, string name)
+    private PlaceScript CreatePlaceTile(int x, int z, int offset, string name)
     {
         PlaceScript placeTile = Instantiate(placement, new Vector3(x + offset * boardSpacing, 0, z * boardSpacing), Quaternion.identity);
+        placeTile.SetState("EMPTY");
         placeTile.name = name + ": " + z + ", " + x;
         return placeTile;
     }
