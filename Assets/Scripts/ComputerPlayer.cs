@@ -3,28 +3,36 @@ using System.Collections;
 using System.Collections.Generic;
 
 /*
- * Random AI
+ * Very basic random AI Computer Player.
  */ 
 public class ComputerPlayer : MonoBehaviour {
 
+    // Public Variables for the Inspector
+    public PlaceScript selected;
+
+    // Constants
+    private const float moveDelay = 1f;
+
+    // Private Variables
     private BoardManager boardManager;
-    public PlaceScript tile;
-    public List<PlaceScript> possibleMoves;
-    public bool CannotPlaceTile = false;
+    private List<PlaceScript> possibleMoves;
+    private int playerID;
     private float timer = 0;
 
-    void Start ()
+    public void SetupComputerControls(BoardManager boardManager, int playerID)
     {
-        boardManager = transform.GetComponent<BoardManager>();
+        this.boardManager = boardManager;
+        this.playerID = playerID;
+
         possibleMoves = new List<PlaceScript>();
     }
 
     void Update ()
     {
-        if(boardManager.curr_player == 2)
+        if(boardManager.GetCurrPlayer() == playerID)
         {
             timer += Time.deltaTime;
-            if (timer > 1f)
+            if (timer > moveDelay)
             {
                 if (!PlaceTile())
                     if (!MoveAttacker())
@@ -41,16 +49,16 @@ public class ComputerPlayer : MonoBehaviour {
     private bool PlaceTile()
     {
         possibleMoves.Clear();
-        tile = boardManager.playerHands[Random.Range(0,boardManager.playerHands.Length)];
+        selected = boardManager.GetPlayerHands()[Random.Range(0,boardManager.GetPlayerHands().Length)];
 
-        while(tile.playerHand != 2)
+        while(selected.playerHand != playerID)
         {
-            tile = boardManager.playerHands[Random.Range(0, boardManager.playerHands.Length)];
+            selected = boardManager.GetPlayerHands()[Random.Range(0, boardManager.GetPlayerHands().Length)];
         }
 
         boardManager.PossibleTilePlacements();
 
-        foreach(PlaceScript cell in boardManager.boardArray)
+        foreach(PlaceScript cell in boardManager.GetBoardArray())
         {
             if(cell.isSelected)
             {
@@ -60,13 +68,13 @@ public class ComputerPlayer : MonoBehaviour {
 
         if (possibleMoves.Count > 0)
         {
-            possibleMoves[Random.Range(0, possibleMoves.Count)].SetState(tile.GetState());
+            possibleMoves[Random.Range(0, possibleMoves.Count)].SetState(selected.GetState());
             boardManager.SubtractMove(1);
         }
         else
             return false;
-        tile.SetState("EMPTY");
-        tile = null;
+        selected.SetState("EMPTY");
+        selected = null;
         boardManager.ClearBoard();
         return true;
     }
@@ -78,9 +86,9 @@ public class ComputerPlayer : MonoBehaviour {
     private bool MoveAttacker()
     {
         possibleMoves.Clear();
-        foreach (PlaceScript cell in boardManager.boardArray)
+        foreach (PlaceScript cell in boardManager.GetBoardArray())
         {
-            if(cell.GetAttacker() && cell.GetAttacker().team == 2)
+            if(cell.GetAttacker() && cell.GetAttacker().team == playerID)
             {
                 possibleMoves.Add(cell);
             }
@@ -88,11 +96,11 @@ public class ComputerPlayer : MonoBehaviour {
         if(possibleMoves.Count == 0)
             return false;
 
-        tile = possibleMoves[Random.Range(0, possibleMoves.Count)];
+        selected = possibleMoves[Random.Range(0, possibleMoves.Count)];
         possibleMoves.Clear();
-        boardManager.PossibleAttackerMoves(tile);
+        boardManager.PossibleAttackerMoves(selected);
 
-        foreach (PlaceScript cell in boardManager.boardArray)
+        foreach (PlaceScript cell in boardManager.GetBoardArray())
         {
             if(cell.isSelected)
             {
@@ -104,13 +112,11 @@ public class ComputerPlayer : MonoBehaviour {
             return false;
 
         PlaceScript place = possibleMoves[Random.Range(0, possibleMoves.Count)];
-
-        place.SetAttacker(tile.GetAttacker());
-        place.GetAttacker().transform.position = new Vector3(place.transform.position.x, boardManager.pieceOffset, place.transform.position.z);
-        tile.SetAttacker(null);
+        selected.GetAttacker().ToggleSelect();
+        boardManager.SetAttacker(selected, place);
         boardManager.ClearBoard();
         boardManager.SubtractMove(1);
-        tile = null;
+        selected = null;
         return true;
     }
 
@@ -118,7 +124,7 @@ public class ComputerPlayer : MonoBehaviour {
     {
         possibleMoves.Clear();
         boardManager.ShowBreakableTiles();
-        foreach(PlaceScript cell in boardManager.boardArray)
+        foreach(PlaceScript cell in boardManager.GetBoardArray())
         {
             if (cell.isBreakable)
             {

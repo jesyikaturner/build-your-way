@@ -3,30 +3,34 @@ using System.Collections;
 
 public class BoardManager : MonoBehaviour {
 
-	public PlaceScript[,] boardArray;
-	public PlaceScript[] playerHands;
-
-	public PlaceScript placement;
+    // Public Variables for the Inspector
+    public PlaceScript placement;
 	public AttackerScript playerAttacker;
 
-	public int turn = 0;
-	public int max_moves = 2;
-	private int curr_moves = 2;
-	public int curr_player = 1;
+    // Constants
+    private const int boardWidth = 6;
+    private const int boardHeight = 6;
+    private const float boardSpacing = 1f; // the distance between the tiles
+    private const float pieceOffset = 0.1f; // height above the tile that pieces rest
+    private const int total_playerHandSize = 6;
+    private const int max_moves = 2;
 
-	public int boardWidth = 6, boardHeight = 6;
-	public float boardSpacing = 1f; // the distance between the tiles
-	public float pieceOffset = 0.1f; // height above the tile that pieces rest
+    // Private Variables
+    private PlaceScript[,] boardArray;
+    private PlaceScript[] playerHands;
+    private int turn = 0;
+	private int curr_moves = 2;
+	private int curr_player = 1;
 
 	// Use this for initialization
 	void Start () {
 		boardArray = new PlaceScript[boardWidth,boardHeight];
-		playerHands = new PlaceScript[6];
+		playerHands = new PlaceScript[total_playerHandSize];
 
 		//B1 - first 3, B2 - next 3, B - remaining 4
 		int[,] layoutV1 = {{0,0},{1,0},{2,2},{3,3},{4,5},{5,5},{4,1},{3,2},{2,3},{1,4}}; 
 
-		CreateBoard(boardWidth,boardHeight);
+		CreateBoard();
 		BoardLayout(layoutV1,10);
 	}
 	
@@ -34,14 +38,6 @@ public class BoardManager : MonoBehaviour {
 	void Update () {
 		SwitchPlayer();
 		FillHands();
-	}
-
-	public void SubtractMove(int subtract)
-	{
-		if(subtract <= 2)
-			curr_moves -= subtract;
-		else
-			Debug.LogError("Trying to do more than 2 moves at once.");
 	}
 
 	private void SwitchPlayer()
@@ -58,7 +54,7 @@ public class BoardManager : MonoBehaviour {
 	}
 
 	// Fills player hands
-	void FillHands()
+	private void FillHands()
 	{
 		foreach(PlaceScript p in playerHands)
 		{
@@ -71,13 +67,14 @@ public class BoardManager : MonoBehaviour {
             }
 		}
 	}
-		
-	void CreateBoard(int width, int height)
+	
+    // There's probably a way better way of handling this.
+	private void CreateBoard()
 	{
 		int counter = 0;
-		for (int x = 0; x < width; x++)
+		for (int x = 0; x < boardWidth; x++)
 		{
-			for (int z = 0; z<height; z++)
+			for (int z = 0; z< boardHeight; z++)
 			{
 				// Creates Player Hands
 				if(z < 3 && x < 1)
@@ -87,7 +84,7 @@ public class BoardManager : MonoBehaviour {
 					playerHands[counter] = handTile;
 					counter++;
 				}
-				if(z > height - 4 && x > width - 2)
+				if(z > boardHeight - 4 && x > boardWidth - 2)
 				{
                     PlaceScript handTile = CreatePlaceTile(x, z, 2, "Player 2 Hand");
 					handTile.playerHand = 2;
@@ -106,7 +103,7 @@ public class BoardManager : MonoBehaviour {
 	}
 
 	//applies a preset layout to the board
-	void BoardLayout(int[,] layout, int layoutLength)
+	private void BoardLayout(int[,] layout, int layoutLength)
 	{
         for (int i = 0; i < layoutLength; i++)
         {
@@ -130,6 +127,57 @@ public class BoardManager : MonoBehaviour {
             }
         }
 	}
+
+    private PlaceScript CreatePlaceTile(int x, int z, int offset, string name)
+    {
+        PlaceScript placeTile = Instantiate(placement, new Vector3(x + offset * boardSpacing, 0, z * boardSpacing), Quaternion.identity);
+        placeTile.SetState("EMPTY");
+        placeTile.name = name + ": " + z + ", " + x;
+        return placeTile;
+    }
+
+    // Creates an attacker and assigns a team to it
+    private AttackerScript CreateAttacker(int team, int x, int z, string name)
+    {
+        AttackerScript attacker = Instantiate(playerAttacker, new Vector3(x, pieceOffset, z), Quaternion.identity);
+        attacker.team = team;
+        attacker.name = name;
+        return attacker;
+    }
+
+    /*
+     * Public methods called from other classes.
+     */ 
+    public PlaceScript[,] GetBoardArray()
+    {
+        return boardArray;
+    }
+
+    public PlaceScript[] GetPlayerHands()
+    {
+        return playerHands;
+    }
+    
+    public int GetCurrPlayer()
+    {
+        return curr_player;
+    }
+
+    public void SetAttacker(PlaceScript origin, PlaceScript target)
+    {
+        target.SetAttacker(origin.GetAttacker());
+        origin.GetAttacker().transform.position = new Vector3(target.transform.position.x, pieceOffset, target.transform.position.z);
+        origin.GetAttacker().ToggleSelect();
+        origin.SetAttacker(null);
+    }
+
+    public void SubtractMove(int subtract)
+    {
+        if (subtract <= max_moves)
+            curr_moves -= subtract;
+        else
+            Debug.LogError("Trying to do more than 2 moves at once.");
+    }
 
     public bool PossibleAttackerMoves (PlaceScript place)
     {
@@ -171,7 +219,7 @@ public class BoardManager : MonoBehaviour {
                     {
                         if(x < boardWidth - 1)
                         {
-                            if(boardArray[x + 1,z].GetState("EMPTY"))
+                            if(boardArray[x + 1,z].GetState("EMPTY") && !boardArray[x + 1, z].isSelected)
                                 boardArray[x + 1, z].ToggleSelectable();
                         }
                         if (x > 0 )
@@ -229,23 +277,6 @@ public class BoardManager : MonoBehaviour {
                 }
             }
         }
-    }
-
-    private PlaceScript CreatePlaceTile(int x, int z, int offset, string name)
-    {
-        PlaceScript placeTile = Instantiate(placement, new Vector3(x + offset * boardSpacing, 0, z * boardSpacing), Quaternion.identity);
-        placeTile.SetState("EMPTY");
-        placeTile.name = name + ": " + z + ", " + x;
-        return placeTile;
-    }
-
-    // Creates an attacker and assigns a team to it
-    private AttackerScript CreateAttacker(int team, int x, int z, string name)
-    {
-        AttackerScript attacker = Instantiate(playerAttacker, new Vector3(x, pieceOffset, z), Quaternion.identity);
-        attacker.team = team;
-        attacker.name = name;
-        return attacker;
     }
 
 }

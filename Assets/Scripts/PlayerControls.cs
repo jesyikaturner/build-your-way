@@ -3,20 +3,30 @@ using System.Collections;
 
 public class PlayerControls : MonoBehaviour {
 
-	private BoardManager boardManager;
-	public PlaceScript selected;
-    public float timer = 0;
+    // Public Variables for the Inspector
+    public PlaceScript selected;
+
+    // Private Variables
+    private BoardManager boardManager;
+    private int playerID;
+    private float timer = 0;
 
     // Use this for initialization
-    void Start () 
-	{
-		boardManager = transform.GetComponent<BoardManager>();
-	}
+
+    public void SetupPlayerControls(BoardManager boardManager, int playerID)
+    {
+        this.boardManager = boardManager;
+        this.playerID = playerID;
+    }
 	
 	// Update is called once per frame
 	void Update () 
 	{
-		MouseControls();
+        if(playerID == boardManager.GetCurrPlayer())
+        {
+            MouseControls();
+        }
+
 	}
 
 	void MouseControls()
@@ -28,6 +38,7 @@ public class PlayerControls : MonoBehaviour {
 			if(hit.collider.gameObject.GetComponent<PlaceScript>())
 			{
 				PlaceScript temp = hit.collider.gameObject.GetComponent<PlaceScript>();
+
                 boardManager.ShowBreakableTiles();
                 if (Input.GetMouseButtonUp(0))
 				{
@@ -58,7 +69,7 @@ public class PlayerControls : MonoBehaviour {
 
 	void MoveTile(PlaceScript place)
 	{
-		if(boardManager.curr_player == place.playerHand)
+		if(playerID == place.playerHand)
 		{
 			// if the player doesn't have anything selected from their hand
             // make what they clicked on, the selected tile.
@@ -105,7 +116,12 @@ public class PlayerControls : MonoBehaviour {
      */ 
 	void MoveAttacker(PlaceScript place)
 	{
-        if (place.GetAttacker() && boardManager.curr_player == place.GetAttacker().team)
+        /*
+         * First checks to see if the tile has an attacker on it and if the attacker belongs to the
+         * current player playing. Then if the player doesn't have a tile selected, it selects that
+         * tile. If the place clicks the same place again, it deselects the tile.
+         */ 
+        if (place.GetAttacker() && playerID == place.GetAttacker().team)
         {
             if (!selected)
             {
@@ -125,16 +141,16 @@ public class PlayerControls : MonoBehaviour {
         }
         else
         {
-            // Move the attacker.
-            if (selected && selected.GetAttacker() != null)
+            /*
+             * With a tile selected and that selected tile has an attacker, the player then
+             * has selected a place for the attacker to move to. First it makes sure that the tile
+             * is a valid move, then it moves/ sets the attacker to the new tile.
+             */ 
+            if (selected && selected.GetAttacker())
             {
-                // if place is a walkable tile or a base tile, then set the attacker to place
                 if (place.isSelected)
                 {
-                    place.SetAttacker(selected.GetAttacker());
-                    selected.GetAttacker().transform.position = new Vector3(place.transform.position.x, boardManager.pieceOffset, place.transform.position.z);
-                    selected.GetAttacker().ToggleSelect();
-                    selected.SetAttacker(null);
+                    boardManager.SetAttacker(selected, place);
                     boardManager.ClearBoard();
                     boardManager.SubtractMove(1);
                     selected = null;
@@ -158,5 +174,4 @@ public class PlayerControls : MonoBehaviour {
         }
         boardManager.ClearBoard();
     }
-
 }
