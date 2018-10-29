@@ -8,7 +8,8 @@ using System.Collections.Generic;
 public class ComputerPlayer : MonoBehaviour {
 
     // Public Variables for the Inspector
-    public PlaceScript selected;
+    [SerializeField]
+    private PlaceScript selected;
 
     // Constants
     private const float moveDelay = 1f;

@@ -4,7 +4,8 @@ using System.Collections;
 public class PlayerControls : MonoBehaviour {
 
     // Public Variables for the Inspector
-    public PlaceScript selected;
+    [SerializeField]
+    private PlaceScript selected;
 
     // Private Variables
     private BoardManager boardManager;

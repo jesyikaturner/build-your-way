@@ -4,8 +4,10 @@ using System.Collections;
 public class BoardManager : MonoBehaviour {
 
     // Public Variables for the Inspector
-    public PlaceScript placement;
-	public AttackerScript playerAttacker;
+    [SerializeField]
+    private readonly PlaceScript placement;
+    [SerializeField]
+    private readonly AttackerScript playerAttacker;
 
     // Constants
     private const int boardWidth = 6;
