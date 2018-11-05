@@ -53,15 +53,19 @@ public class PlayerControls : MonoBehaviour {
                 // and progresses through the animation.
                 if (Input.GetMouseButton(0))
                 {
-                    if (temp.isBreakable)
-                        timer += Time.deltaTime;
-
-                    if (temp.BreakAnimation(timer) != 0)
+                    if(temp.GetAttacker() == null)
                     {
-                        DestroyTile(temp);
-                        timer = 0f;
-                        temp.isBreaking = false;
+                        if (temp.isBreakable)
+                            timer += Time.deltaTime;
+
+                        if (temp.BreakAnimation(timer) != 0)
+                        {
+                            DestroyTile(temp);
+                            timer = 0f;
+                            temp.isBreaking = false;
+                        }
                     }
+
                 }
 			}
 		}

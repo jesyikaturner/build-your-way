@@ -10,6 +10,9 @@ public class GameManager : MonoBehaviour {
     private List<PlayerControls> players;
     private List<ComputerPlayer> computers;
 
+    public bool PlayerOneWins = false;
+    public bool PlayerTwoWins = false;
+
 
 	// Use this for initialization
 	void Start () {
@@ -34,6 +37,10 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
+        boardManager.SwitchPlayer();
+        boardManager.FillHands();
+
+        PlayerOneWins = boardManager.CheckForWinner(1);
+        PlayerTwoWins = boardManager.CheckForWinner(2);
+    }
 }

@@ -4,18 +4,17 @@ using System.Collections;
 public class BoardManager : MonoBehaviour {
 
     // Public Variables for the Inspector
-    [SerializeField]
-    private readonly PlaceScript placement;
-    [SerializeField]
-    private readonly AttackerScript playerAttacker;
+    public PlaceScript placement;
+    public AttackerScript playerAttacker;
 
     // Constants
-    private const int boardWidth = 6;
-    private const int boardHeight = 6;
+    private const int BOARD_WIDTH = 6;
+    private const int BOARD_HEIGHT = 6;
     private const float boardSpacing = 1f; // the distance between the tiles
     private const float pieceOffset = 0.1f; // height above the tile that pieces rest
     private const int total_playerHandSize = 6;
     private const int max_moves = 2;
+    private readonly int[,] PLAYER_HAND_COORDS = {{0,0},{0,1},{0,2},{5,3},{5,4},{5,5}};
 
     // Private Variables
     private PlaceScript[,] boardArray;
@@ -24,111 +23,95 @@ public class BoardManager : MonoBehaviour {
 	private int curr_moves = 2;
 	private int curr_player = 1;
 
-	// Use this for initialization
+	/*
+     * Setting up board layout.
+     */ 
 	void Start () {
-		boardArray = new PlaceScript[boardWidth,boardHeight];
+		boardArray = new PlaceScript[BOARD_WIDTH,BOARD_HEIGHT];
 		playerHands = new PlaceScript[total_playerHandSize];
 
 		//B1 - first 3, B2 - next 3, B - remaining 4
-		int[,] layoutV1 = {{0,0},{1,0},{2,2},{3,3},{4,5},{5,5},{4,1},{3,2},{2,3},{1,4}}; 
-
-		CreateBoard();
-		BoardLayout(layoutV1,10);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		SwitchPlayer();
-		FillHands();
+		int[,] layoutV1 = {{0,0},{1,0},{2,2},{3,3},{4,5},{5,5},{4,1},{3,2},{2,3},{1,4}};
+        SetupBoard();
+        SetupPlayerHands();
+        BoardLayout(layoutV1);
 	}
 
-	private void SwitchPlayer()
-	{
-		if(curr_moves < 1)
-		{
-			turn++;
-			if(turn % 2 == 0)
-				curr_player = 1;
-			else
-				curr_player = 2;
-			curr_moves = max_moves;
-		}
-	}
-
-	// Fills player hands
-	private void FillHands()
-	{
-		foreach(PlaceScript p in playerHands)
-		{
-            if(p.state == PlaceScript.PlaceState.EMPTY)
-            {
-                if (Random.Range(0, 100) <= 25)
-                    p.SetState("BLOCK");
-                else
-                    p.SetState("WALK");
-            }
-		}
-	}
-	
-    // There's probably a way better way of handling this.
-	private void CreateBoard()
-	{
-		int counter = 0;
-		for (int x = 0; x < boardWidth; x++)
-		{
-			for (int z = 0; z< boardHeight; z++)
-			{
-				// Creates Player Hands
-				if(z < 3 && x < 1)
-				{
-                    PlaceScript handTile = CreatePlaceTile(x, z, -2, "Player 1 Hand");
-					handTile.playerHand = 1;
-					playerHands[counter] = handTile;
-					counter++;
-				}
-				if(z > boardHeight - 4 && x > boardWidth - 2)
-				{
-                    PlaceScript handTile = CreatePlaceTile(x, z, 2, "Player 2 Hand");
-					handTile.playerHand = 2;
-					playerHands[counter] = handTile;
-					counter++;
-				}
-
-                // Creates an Empty Board
-                PlaceScript placeTile = CreatePlaceTile(x, z, 0, "Place");
-				placeTile.transform.parent = transform.GetChild (0).transform;
-				placeTile.xPos = x;
-				placeTile.zPos = z;
-				boardArray[x, z] = placeTile;
-			}
-		}
-	}
-
-	//applies a preset layout to the board
-	private void BoardLayout(int[,] layout, int layoutLength)
-	{
-        for (int i = 0; i < layoutLength; i++)
+    // Sets up empty places on the board.
+    private void SetupBoard()
+    {
+        for (int x = 0; x < BOARD_HEIGHT; x++)
         {
-            foreach (PlaceScript p in boardArray)
+            for (int z = 0; z < BOARD_WIDTH; z++)
             {
-                if (p.zPos == layout[i, 0] && p.xPos == layout[i, 1])
+                PlaceScript placeTile = CreatePlaceTile(x, z, 0, "Place");
+                placeTile.transform.parent = transform.GetChild(0).transform;
+                placeTile.xPos = x;
+                placeTile.zPos = z;
+                boardArray[x, z] = placeTile;
+            }
+        }
+    }
+
+    // Sets up the positions of the players hands.
+    private void SetupPlayerHands()
+    {
+        int counter = 0;
+        for (int i = 0; i < PLAYER_HAND_COORDS.GetLength(0); i++)
+        {
+            if (i < PLAYER_HAND_COORDS.GetLength(0) / 2)
+            {
+                PlaceScript handTile = CreatePlaceTile(PLAYER_HAND_COORDS[i, 0], PLAYER_HAND_COORDS[i, 1], -2, "Player 1 Hand");
+                handTile.playerHand = 1;
+                playerHands[counter] = handTile;
+                counter++;
+            }
+            else
+            {
+                PlaceScript handTile = CreatePlaceTile(PLAYER_HAND_COORDS[i, 0], PLAYER_HAND_COORDS[i, 1], 2, "Player 2 Hand");
+                handTile.playerHand = 2;
+                playerHands[counter] = handTile;
+                counter++;
+            }
+        }
+    }
+
+    //applies a preset layout to the board
+    private void BoardLayout(int[,] layout)
+    {
+        for (int i = 0; i < layout.GetLength(0); i++)
+        {
+            foreach (PlaceScript cell in boardArray)
+            {
+                if (cell.zPos == layout[i, 0] && cell.xPos == layout[i, 1])
                 {
                     if (i < 3)
-                        p.SetState("BASE1");
+                    {
+                        cell.SetState("BASE1");
+                        cell.team = 1;
+                    }
+         
                     if (i > 2)
-                        p.SetState("BASE2");
+                    {
+                        cell.SetState("BASE2");
+                        cell.team = 2;
+                    } 
                     if (i > 5)
-                        p.SetState("BLOCK");
+                    {
+                        cell.SetState("BLOCK");
+                        cell.team = 0;
+                    }
 
-                    if (p.GetState("BASE1"))
-                        p.SetAttacker(CreateAttacker(1, p.xPos, p.zPos, "Player 1 Attacker"));
-                    if (p.GetState("BASE2"))
-                        p.SetAttacker(CreateAttacker(2, p.xPos, p.zPos, "Player 2 Attacker"));
+
+                    if (cell.GetState("BASE1"))
+                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 1 Attacker"));
+                    if (cell.GetState("BASE2"))
+                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 2 Attacker"));
                 }
 
             }
         }
-	}
+    }
 
     private PlaceScript CreatePlaceTile(int x, int z, int offset, string name)
     {
@@ -145,6 +128,54 @@ public class BoardManager : MonoBehaviour {
         attacker.team = team;
         attacker.name = name;
         return attacker;
+    }
+
+	public void SwitchPlayer()
+	{
+		if(curr_moves < 1)
+		{
+			turn++;
+			if(turn % 2 == 0)
+				curr_player = 1;
+			else
+				curr_player = 2;
+			curr_moves = max_moves;
+		}
+	}
+
+	// Fills player hands
+	public void FillHands()
+	{
+		foreach(PlaceScript p in playerHands)
+		{
+            if(p.state == PlaceScript.PlaceState.EMPTY)
+            {
+                if (Random.Range(0, 100) <= 1)
+                    p.SetState("BLOCK");
+                else
+                    p.SetState("WALK");
+            }
+		}
+	}
+
+    public bool CheckForWinner(int playerID)
+    {
+        int counter = 0;
+        foreach(PlaceScript cell in boardArray)
+        {
+            if (cell.team != playerID && cell.team != 0)
+            {
+                if(cell.GetAttacker() && cell.GetAttacker().team == playerID)
+                {
+                    counter++;
+                }
+            }
+        }
+        if(counter > 2)
+        {
+            return true;
+        }
+        return false;
     }
 
     /*
@@ -211,15 +242,15 @@ public class BoardManager : MonoBehaviour {
 
     public void PossibleTilePlacements()
     {
-        for(int x = 0; x < boardWidth; x++)
+        for(int x = 0; x < BOARD_WIDTH; x++)
         {
-            for (int z = 0; z < boardHeight; z++)
+            for (int z = 0; z < BOARD_HEIGHT; z++)
             {
                 if (boardArray[x, z].GetAttacker())
                 {
                     if(curr_player == boardArray[x, z].GetAttacker().team)
                     {
-                        if(x < boardWidth - 1)
+                        if(x < BOARD_WIDTH - 1)
                         {
                             if(boardArray[x + 1,z].GetState("EMPTY") && !boardArray[x + 1, z].isSelected)
                                 boardArray[x + 1, z].ToggleSelectable();
@@ -229,7 +260,7 @@ public class BoardManager : MonoBehaviour {
                             if (boardArray[x - 1, z].GetState("EMPTY"))
                                 boardArray[x - 1, z].ToggleSelectable();
                         }
-                        if (z < boardHeight - 1)
+                        if (z < BOARD_HEIGHT - 1)
                         {
                             if (boardArray[x, z + 1].GetState("EMPTY"))
                                 boardArray[x, z + 1].ToggleSelectable();
@@ -247,15 +278,15 @@ public class BoardManager : MonoBehaviour {
 
     public void ShowBreakableTiles()
     {
-        for (int x = 0; x < boardWidth; x++)
+        for (int x = 0; x < BOARD_WIDTH; x++)
         {
-            for (int z = 0; z < boardHeight; z++)
+            for (int z = 0; z < BOARD_HEIGHT; z++)
             {
                 if (boardArray[x, z].GetAttacker())
                 {
                     if (curr_player == boardArray[x, z].GetAttacker().team)
                     {
-                        if (x < boardWidth - 1)
+                        if (x < BOARD_WIDTH - 1)
                         {
                             if (boardArray[x + 1, z].GetState("WALK") || boardArray[x + 1, z].GetState("BLOCK"))
                                 boardArray[x + 1, z].isBreakable = true;
@@ -265,7 +296,7 @@ public class BoardManager : MonoBehaviour {
                             if (boardArray[x - 1, z].GetState("WALK") || boardArray[x - 1, z].GetState("BLOCK"))
                                 boardArray[x - 1, z].isBreakable = true; 
                         }
-                        if (z < boardHeight - 1)
+                        if (z < BOARD_HEIGHT - 1)
                         {
                             if (boardArray[x, z + 1].GetState("WALK") || boardArray[x, z + 1].GetState("BLOCK"))
                                 boardArray[x, z + 1].isBreakable = true;
