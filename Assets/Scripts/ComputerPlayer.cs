@@ -16,6 +16,7 @@ public class ComputerPlayer : MonoBehaviour {
 
     // Private Variables
     private BoardManager boardManager;
+    private PlayerHandHandler compHand;
     private List<PlaceScript> possibleMoves;
     private int playerID;
     private float timer = 0;
@@ -26,6 +27,7 @@ public class ComputerPlayer : MonoBehaviour {
         this.playerID = playerID;
 
         possibleMoves = new List<PlaceScript>();
+        compHand = boardManager.GetHands()[1];
     }
 
     void Update ()
@@ -50,12 +52,7 @@ public class ComputerPlayer : MonoBehaviour {
     private bool PlaceTile()
     {
         possibleMoves.Clear();
-        selected = boardManager.GetPlayerHands()[Random.Range(0,boardManager.GetPlayerHands().Length)];
-
-        while(selected.playerHand != playerID)
-        {
-            selected = boardManager.GetPlayerHands()[Random.Range(0, boardManager.GetPlayerHands().Length)];
-        }
+        selected = compHand.GetPlayerHand()[Random.Range(0, compHand.GetPlayerHand().Length)];
 
         boardManager.PossibleTilePlacements();
 

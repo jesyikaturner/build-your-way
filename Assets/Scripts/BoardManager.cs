@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BoardManager : MonoBehaviour {
 
@@ -12,30 +13,30 @@ public class BoardManager : MonoBehaviour {
     private const int BOARD_HEIGHT = 6;
     private const float boardSpacing = 1f; // the distance between the tiles
     private const float pieceOffset = 0.1f; // height above the tile that pieces rest
-    private const int total_playerHandSize = 6;
     private const int max_moves = 2;
-    private readonly int[,] PLAYER_HAND_COORDS = {{0,0},{0,1},{0,2},{5,3},{5,4},{5,5}};
+
+    private readonly int[,] PLAYER_ONE_COORDS = { { 0, 0 }, { 0, 1 }, { 0, 2 } };
+    private readonly int[,] PLAYER_TWO_COORDS = { { 5, 3 }, { 5, 4 }, { 5, 5 } };
 
     // Private Variables
     private PlaceScript[,] boardArray;
-    private PlaceScript[] playerHands;
+    private List<PlayerHandHandler> handHandlers;
     private int turn = 0;
 	private int curr_moves = 2;
 	private int curr_player = 1;
 
-	/*
+    /*
      * Setting up board layout.
-     */ 
-	void Start () {
+     */
+    void Start () {
 		boardArray = new PlaceScript[BOARD_WIDTH,BOARD_HEIGHT];
-		playerHands = new PlaceScript[total_playerHandSize];
 
-		//B1 - first 3, B2 - next 3, B - remaining 4
-		int[,] layoutV1 = {{0,0},{1,0},{2,2},{3,3},{4,5},{5,5},{4,1},{3,2},{2,3},{1,4}};
+        //B1 - first 3, B2 - next 3, B - remaining 4
+        int[,] layoutV1 = {{0,0},{1,0},{2,2},{3,3},{4,5},{5,5},{4,1},{3,2},{2,3},{1,4}};
         SetupBoard();
         SetupPlayerHands();
         BoardLayout(layoutV1);
-	}
+    }
 
     // Sets up empty places on the board.
     private void SetupBoard()
@@ -56,24 +57,16 @@ public class BoardManager : MonoBehaviour {
     // Sets up the positions of the players hands.
     private void SetupPlayerHands()
     {
-        int counter = 0;
-        for (int i = 0; i < PLAYER_HAND_COORDS.GetLength(0); i++)
+        handHandlers = new List<PlayerHandHandler>
         {
-            if (i < PLAYER_HAND_COORDS.GetLength(0) / 2)
-            {
-                PlaceScript handTile = CreatePlaceTile(PLAYER_HAND_COORDS[i, 0], PLAYER_HAND_COORDS[i, 1], -2, "Player 1 Hand");
-                handTile.playerHand = 1;
-                playerHands[counter] = handTile;
-                counter++;
-            }
-            else
-            {
-                PlaceScript handTile = CreatePlaceTile(PLAYER_HAND_COORDS[i, 0], PLAYER_HAND_COORDS[i, 1], 2, "Player 2 Hand");
-                handTile.playerHand = 2;
-                playerHands[counter] = handTile;
-                counter++;
-            }
-        }
+            gameObject.AddComponent<PlayerHandHandler>(),
+            gameObject.AddComponent<PlayerHandHandler>()
+        };
+
+        handHandlers[0].PopulatePlayerHand(PLAYER_ONE_COORDS, placement, -2, boardSpacing, "PLAYER 1 HAND", 1);
+        handHandlers[0].FillHand();
+        handHandlers[1].PopulatePlayerHand(PLAYER_TWO_COORDS, placement, 2, boardSpacing, "PLAYER 2 HAND", 2);
+        handHandlers[1].FillHand();
     }
 
     //applies a preset layout to the board
@@ -143,21 +136,6 @@ public class BoardManager : MonoBehaviour {
 		}
 	}
 
-	// Fills player hands
-	public void FillHands()
-	{
-		foreach(PlaceScript p in playerHands)
-		{
-            if(p.state == PlaceScript.PlaceState.EMPTY)
-            {
-                if (Random.Range(0, 100) <= 1)
-                    p.SetState("BLOCK");
-                else
-                    p.SetState("WALK");
-            }
-		}
-	}
-
     public bool CheckForWinner(int playerID)
     {
         int counter = 0;
@@ -186,11 +164,11 @@ public class BoardManager : MonoBehaviour {
         return boardArray;
     }
 
-    public PlaceScript[] GetPlayerHands()
+    public List<PlayerHandHandler> GetHands()
     {
-        return playerHands;
+        return handHandlers;
     }
-    
+
     public int GetCurrPlayer()
     {
         return curr_player;

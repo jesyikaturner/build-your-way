@@ -38,9 +38,9 @@ public class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         boardManager.SwitchPlayer();
-        boardManager.FillHands();
+        //boardManager.FillHands();
 
-        PlayerOneWins = boardManager.CheckForWinner(1);
-        PlayerTwoWins = boardManager.CheckForWinner(2);
+        //PlayerOneWins = boardManager.CheckForWinner(1);
+        //PlayerTwoWins = boardManager.CheckForWinner(2);
     }
 }
