@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour {
         boardManager.SwitchPlayer();
         //boardManager.FillHands();
 
-        //PlayerOneWins = boardManager.CheckForWinner(1);
-        //PlayerTwoWins = boardManager.CheckForWinner(2);
+        PlayerOneWins = boardManager.CheckForWinner(1);
+        PlayerTwoWins = boardManager.CheckForWinner(2);
     }
 }

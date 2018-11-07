@@ -22,7 +22,7 @@ public class BoardManager : MonoBehaviour {
     private PlaceScript[,] boardArray;
     private List<PlayerHandHandler> handHandlers;
     private int turn = 0;
-	private int curr_moves = 2;
+    private int curr_moves = 2;
 	private int curr_player = 1;
 
     /*
@@ -123,7 +123,11 @@ public class BoardManager : MonoBehaviour {
         return attacker;
     }
 
-	public void SwitchPlayer()
+     /*
+     * Public methods called from other classes.
+     */
+    // Swap player when the moves get below 1. Then reset the moves to max.
+    public void SwitchPlayer()
 	{
 		if(curr_moves < 1)
 		{
@@ -136,6 +140,7 @@ public class BoardManager : MonoBehaviour {
 		}
 	}
 
+    // Check to see if the attacker is on the opposing player's base. Increase the counter.
     public bool CheckForWinner(int playerID)
     {
         int counter = 0;
@@ -156,24 +161,7 @@ public class BoardManager : MonoBehaviour {
         return false;
     }
 
-    /*
-     * Public methods called from other classes.
-     */ 
-    public PlaceScript[,] GetBoardArray()
-    {
-        return boardArray;
-    }
-
-    public List<PlayerHandHandler> GetHands()
-    {
-        return handHandlers;
-    }
-
-    public int GetCurrPlayer()
-    {
-        return curr_player;
-    }
-
+    // Move Attacker from origin tile to target tile.
     public void SetAttacker(PlaceScript origin, PlaceScript target)
     {
         target.SetAttacker(origin.GetAttacker());
@@ -181,15 +169,30 @@ public class BoardManager : MonoBehaviour {
         origin.GetAttacker().ToggleSelect();
         origin.SetAttacker(null);
     }
-
-    public void SubtractMove(int subtract)
+    
+    // Does checks to see if the value to be subtracted from the moves is correct.
+    public bool SubtractMove(int subtract)
     {
-        if (subtract <= max_moves)
-            curr_moves -= subtract;
+        if(subtract > max_moves)
+        {
+            //Debug.LogError("Move is greater than the max_moves.");
+            // PLAY ERROR SOUND
+            return false;
+        }
+        else if(subtract > curr_moves)
+        {
+            //Debug.LogError("Move is greater than the currently available moves.");
+            // PLAY ERROR SOUND
+            return false;
+        }
         else
-            Debug.LogError("Trying to do more than 2 moves at once.");
+        {
+            curr_moves -= subtract;
+        }
+        return true;
     }
 
+    // Checks tile that are walkable around the attacker tiles and makes them selectable.
     public bool PossibleAttackerMoves (PlaceScript place)
     {
         bool canMove = false;
@@ -208,6 +211,7 @@ public class BoardManager : MonoBehaviour {
         return canMove;
     }
 
+    // Clears the board, toggles off all selected tiles and sets breakable tiles to non-breakable.
     public void ClearBoard()
     {
         foreach(PlaceScript place in boardArray){
@@ -218,35 +222,34 @@ public class BoardManager : MonoBehaviour {
         }
     }
 
+    // Makes cells around the attackers selectable for a tile to be placed on them.
     public void PossibleTilePlacements()
     {
-        for(int x = 0; x < BOARD_WIDTH; x++)
+        foreach(PlaceScript cell in boardArray)
         {
-            for (int z = 0; z < BOARD_HEIGHT; z++)
+            if(cell.GetAttacker() && cell.GetAttacker().team == curr_player)
             {
-                if (boardArray[x, z].GetAttacker())
+                PlaceScript currCell = cell;
+                foreach(PlaceScript adjacentCell in boardArray)
                 {
-                    if(curr_player == boardArray[x, z].GetAttacker().team)
+                    if (adjacentCell.GetState("EMPTY"))
                     {
-                        if(x < BOARD_WIDTH - 1)
+                        if (adjacentCell.xPos > -1 && adjacentCell.xPos < BOARD_WIDTH)
                         {
-                            if(boardArray[x + 1,z].GetState("EMPTY") && !boardArray[x + 1, z].isSelected)
-                                boardArray[x + 1, z].ToggleSelectable();
+                            if (adjacentCell.xPos == currCell.xPos + 1 && adjacentCell.zPos == currCell.zPos && !adjacentCell.isSelected)
+                                adjacentCell.ToggleSelectable();
+
+                            if (adjacentCell.xPos == currCell.xPos - 1 && adjacentCell.zPos == currCell.zPos && !adjacentCell.isSelected)
+                                adjacentCell.ToggleSelectable();
                         }
-                        if (x > 0 )
+
+                        if (adjacentCell.zPos > -1 && adjacentCell.zPos < BOARD_HEIGHT)
                         {
-                            if (boardArray[x - 1, z].GetState("EMPTY"))
-                                boardArray[x - 1, z].ToggleSelectable();
-                        }
-                        if (z < BOARD_HEIGHT - 1)
-                        {
-                            if (boardArray[x, z + 1].GetState("EMPTY"))
-                                boardArray[x, z + 1].ToggleSelectable();
-                        }
-                        if (z > 0)
-                        {
-                            if (boardArray[x, z - 1].GetState("EMPTY"))
-                                boardArray[x, z - 1].ToggleSelectable();
+                            if (adjacentCell.zPos == currCell.zPos + 1 && adjacentCell.xPos == currCell.xPos && !adjacentCell.isSelected)
+                                adjacentCell.ToggleSelectable();
+
+                            if (adjacentCell.zPos == currCell.zPos - 1 && adjacentCell.xPos == currCell.xPos && !adjacentCell.isSelected)
+                                adjacentCell.ToggleSelectable();
                         }
                     }
                 }
@@ -288,6 +291,24 @@ public class BoardManager : MonoBehaviour {
                 }
             }
         }
+    }
+
+     /*
+     * Getters
+     */
+    public PlaceScript[,] GetBoardArray()
+    {
+        return boardArray;
+    }
+
+    public List<PlayerHandHandler> GetHands()
+    {
+        return handHandlers;
+    }
+
+    public int GetCurrPlayer()
+    {
+        return curr_player;
     }
 
 }

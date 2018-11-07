@@ -63,6 +63,7 @@ public class PlayerControls : MonoBehaviour {
                             DestroyTile(temp);
                             timer = 0f;
                             temp.isBreaking = false;
+                            boardManager.ClearBoard();
                         }
                     }
 
@@ -102,7 +103,7 @@ public class PlayerControls : MonoBehaviour {
 			// Move the tile from the player's hand.
 			if(selected && selected.GetAttacker() == null)
 			{
-				if(place.GetState("EMPTY"))
+				if(place.GetState("EMPTY") && place.isSelected)
 				{
                     place.SetState(selected.GetState());
 					selected.SetState("EMPTY");
@@ -165,18 +166,18 @@ public class PlayerControls : MonoBehaviour {
 	}
 
 
-    void DestroyTile(PlaceScript place)
+    private void DestroyTile(PlaceScript place)
     {
         if(place.GetState("WALK"))
         {
-            boardManager.SubtractMove(1);
-            place.SetState("EMPTY");
+            if(boardManager.SubtractMove(1))
+                place.SetState("EMPTY");
         }
         if(place.GetState("BLOCK"))
         {
-            boardManager.SubtractMove(2);
-            place.SetState("EMPTY");
+            if(boardManager.SubtractMove(2))
+                place.SetState("EMPTY");
         }
-        boardManager.ClearBoard();
+
     }
 }

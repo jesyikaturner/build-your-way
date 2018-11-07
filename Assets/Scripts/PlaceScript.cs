@@ -199,7 +199,7 @@ public class PlaceScript : MonoBehaviour
                 blockType = 1;
             if (spriteRenderer.sprite == b2_block)
                 blockType = 2;
-            state = PlaceState.EMPTY;
+            //state = PlaceState.EMPTY;
         }
         return blockType;
     }
