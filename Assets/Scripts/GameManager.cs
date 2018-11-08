@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour {
     private List<PlayerControls> players;
     private List<ComputerPlayer> computers;
 
+    private GameplayGUI gameplayGUI;
+
     public bool PlayerOneWins = false;
     public bool PlayerTwoWins = false;
 
@@ -33,7 +35,10 @@ public class GameManager : MonoBehaviour {
             players.Add(gameObject.AddComponent<PlayerControls>());
             players[1].SetupPlayerControls(boardManager, 2);
         }
-	}
+
+        gameplayGUI = gameObject.GetComponent<GameplayGUI>();
+        gameplayGUI.SetupGameplayGUI(boardManager);
+    }
 	
 	// Update is called once per frame
 	void Update () {
