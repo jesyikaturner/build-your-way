@@ -18,6 +18,7 @@ public class ComputerPlayer : MonoBehaviour {
     private BoardManager boardManager;
     private PlayerHandHandler compHand;
     private List<PlaceScript> possibleMoves;
+    private List<PlaceScript> goalTiles;
     private int playerID;
     private float timer = 0;
 
@@ -27,7 +28,17 @@ public class ComputerPlayer : MonoBehaviour {
         this.playerID = playerID;
 
         possibleMoves = new List<PlaceScript>();
+        goalTiles = new List<PlaceScript>();
         compHand = boardManager.GetHands()[1];
+
+        // Getting the tiles that the attackers need to move to.
+        foreach(PlaceScript cell in boardManager.GetBoardArray())
+        {
+            if (cell.GetState("BASE1"))
+            {
+                goalTiles.Add(cell);
+            }
+        }
     }
 
     void Update ()
@@ -48,7 +59,7 @@ public class ComputerPlayer : MonoBehaviour {
 
     /* Goes through the steps of random selecting, add the possible 
      * moves to a list then random selecting one of those for the tile to be moved to.
-     */ 
+     */
     private bool PlaceTile()
     {
         possibleMoves.Clear();
@@ -64,17 +75,40 @@ public class ComputerPlayer : MonoBehaviour {
             }
         }
 
-        if (possibleMoves.Count > 0)
-        {
-            possibleMoves[Random.Range(0, possibleMoves.Count)].SetState(selected.GetState());
-            boardManager.SubtractMove(1);
-        }
-        else
+        if (possibleMoves.Count == 0)
             return false;
+
+        PlaceScript selectedMove = GetClosestPosition(possibleMoves);
+        if (selectedMove)
+            selectedMove.SetState(selected.GetState());
+        else
+            possibleMoves[Random.Range(0, possibleMoves.Count)].SetState(selected.GetState());
+
+        boardManager.SubtractMove(1);
+
+
         selected.SetState("EMPTY");
         selected = null;
         boardManager.ClearBoard();
         return true;
+    }
+
+    private PlaceScript GetClosestPosition(List<PlaceScript> possiblePlaces)
+    {
+        PlaceScript selectedPlace = null ;
+        float distance = float.MaxValue;
+        foreach (PlaceScript cell in goalTiles)
+        {
+            foreach(PlaceScript place in possiblePlaces)
+            {
+                if(Vector3.Distance(cell.transform.position,place.transform.position) < distance)
+                {
+                    selectedPlace = place;
+                    distance = Vector3.Distance(cell.transform.position, place.transform.position);
+                }
+            }
+        }
+        return selectedPlace;
     }
 
     /*
@@ -88,13 +122,20 @@ public class ComputerPlayer : MonoBehaviour {
         {
             if(cell.GetAttacker() && cell.GetAttacker().team == playerID)
             {
-                possibleMoves.Add(cell);
+                // make sure its not already on the goal tiles.
+                if(!cell.GetState("BASE1"))
+                    possibleMoves.Add(cell);
             }
         }
         if(possibleMoves.Count == 0)
             return false;
 
-        selected = possibleMoves[Random.Range(0, possibleMoves.Count)];
+        PlaceScript selectedMove = GetClosestPosition(possibleMoves);
+        if (selectedMove)
+            selected = selectedMove;
+        else
+            selected = possibleMoves[Random.Range(0, possibleMoves.Count)];
+
         possibleMoves.Clear();
         boardManager.PossibleAttackerMoves(selected);
 
@@ -109,7 +150,13 @@ public class ComputerPlayer : MonoBehaviour {
         if (possibleMoves.Count == 0)
             return false;
 
-        PlaceScript place = possibleMoves[Random.Range(0, possibleMoves.Count)];
+        selectedMove = GetClosestPosition(possibleMoves);
+        PlaceScript place;
+        if (selectedMove)
+            place = selectedMove;
+        else
+            place = possibleMoves[Random.Range(0, possibleMoves.Count)];
+
         selected.GetAttacker().ToggleSelect();
         boardManager.SetAttacker(selected, place);
         boardManager.ClearBoard();

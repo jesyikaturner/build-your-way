@@ -28,7 +28,7 @@ public class BoardManager : MonoBehaviour {
     /*
      * Setting up board layout.
      */
-    void Start () {
+    void Awake () {
 		boardArray = new PlaceScript[BOARD_WIDTH,BOARD_HEIGHT];
 
         //B1 - first 3, B2 - next 3, B - remaining 4
