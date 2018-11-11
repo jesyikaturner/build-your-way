@@ -48,9 +48,9 @@ public class ComputerPlayer : MonoBehaviour {
             timer += Time.deltaTime;
             if (timer > moveDelay)
             {
-                if (!PlaceTile())
-                    if (!MoveAttacker())
-                        DestroyTile();
+                if (!DestroyTile())
+                    if (!PlaceTile())
+                        MoveAttacker();
                 timer = 0;
             }
 
@@ -177,13 +177,20 @@ public class ComputerPlayer : MonoBehaviour {
             }
         }
 
-        PlaceScript place = possibleMoves[Random.Range(0, possibleMoves.Count)];
+        if (possibleMoves.Count == 0)
+            return false;
+
+        PlaceScript selectedMove = GetClosestPosition(possibleMoves);
+        if (selectedMove)
+            selected = selectedMove;
+        else
+            selected = possibleMoves[Random.Range(0, possibleMoves.Count)];
+
+        PlaceScript place = selected;
 
         if (place.GetState("WALK"))
-        {
-            boardManager.SubtractMove(1);
-            place.SetState("EMPTY");
-        }
+            return false;
+
         if (place.GetState("BLOCK"))
         {
             boardManager.SubtractMove(2);
