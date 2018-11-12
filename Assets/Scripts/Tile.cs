@@ -1,16 +1,16 @@
 using UnityEngine;
 using System.Collections;
 
-public class PlaceScript : MonoBehaviour 
+public class Tile : MonoBehaviour 
 {
-    public enum PlaceState
+    public enum TileState
     {
         WALK, BLOCK, BASE1, BASE2, EMPTY
     }
-    public PlaceState state;
+    public TileState state;
 
 	public int xPos, zPos, playerHand = 0, team = 0;
-	public AttackerScript _attacker;
+	public Attacker _attacker;
 	private SpriteRenderer spriteRenderer;
 
     public bool isBreakable = false;
@@ -40,19 +40,19 @@ public class PlaceScript : MonoBehaviour
 	{
         switch (state)
         {
-            case PlaceState.EMPTY:
+            case TileState.EMPTY:
                 spriteRenderer.sprite = empty;
                 break;
-            case PlaceState.WALK:
+            case TileState.WALK:
                 spriteRenderer.sprite = walk;
                 break;
-            case PlaceState.BLOCK:
+            case TileState.BLOCK:
                 spriteRenderer.sprite = block;
                 break;
-            case PlaceState.BASE1:
+            case TileState.BASE1:
                 spriteRenderer.sprite = base1;
                 break;
-            case PlaceState.BASE2:
+            case TileState.BASE2:
                 spriteRenderer.sprite = base2;
                 break;
             default:
@@ -75,7 +75,7 @@ public class PlaceScript : MonoBehaviour
         }
 	}
 
-    public void SetState(PlaceState inputState)
+    public void SetState(TileState inputState)
     {
         state = inputState;
     }
@@ -85,19 +85,19 @@ public class PlaceScript : MonoBehaviour
         switch (placestate)
         {
             case "WALK":
-                state = PlaceState.WALK;
+                state = TileState.WALK;
                 break;
             case "BLOCK":
-                state = PlaceState.BLOCK;
+                state = TileState.BLOCK;
                 break;
             case "EMPTY":
-                state = PlaceState.EMPTY;
+                state = TileState.EMPTY;
                 break;
             case "BASE1":
-                state = PlaceState.BASE1;
+                state = TileState.BASE1;
                 break;
             case "BASE2":
-                state = PlaceState.BASE2;
+                state = TileState.BASE2;
                 break;
             default:
                 Debug.LogErrorFormat("{0} cannot be set as a PlaceState!",placestate);
@@ -110,23 +110,23 @@ public class PlaceScript : MonoBehaviour
         switch (placestate)
         {
             case "WALK":
-                if(state == PlaceState.WALK)
+                if(state == TileState.WALK)
                     return true;
                 break;
             case "BLOCK":
-                if (state == PlaceState.BLOCK)
+                if (state == TileState.BLOCK)
                     return true;
                 break;
             case "EMPTY":
-                if (state == PlaceState.EMPTY)
+                if (state == TileState.EMPTY)
                     return true;
                 break;
             case "BASE1":
-                if (state == PlaceState.BASE1)
+                if (state == TileState.BASE1)
                     return true;
                 break;
             case "BASE2":
-                if (state == PlaceState.BASE2)
+                if (state == TileState.BASE2)
                     return true;
                 break;
             default:
@@ -136,7 +136,7 @@ public class PlaceScript : MonoBehaviour
         return false;
     }
 
-    public PlaceState GetState()
+    public TileState GetState()
     {
         return state;
     }
@@ -149,7 +149,7 @@ public class PlaceScript : MonoBehaviour
             isSelected = false;
     }
 
-	public bool SetAttacker(AttackerScript attacker)
+	public bool SetAttacker(Attacker attacker)
 	{
         if(attacker == null)
         {
@@ -167,7 +167,7 @@ public class PlaceScript : MonoBehaviour
 		return true;
 	}
 
-	public AttackerScript GetAttacker()
+	public Attacker GetAttacker()
 	{
 		return _attacker;
 	}

@@ -11,10 +11,10 @@ public class GameManager : MonoBehaviour {
     public GameMode mode;
 
     public BoardManager boardManager;
+    public SoundManager soundManager;
+    private GameplayGUI gameplayGUI;
 
     private List<IPlayer> players;
-
-    private GameplayGUI gameplayGUI;
 
     public bool PlayerOneWins = false;
     public bool PlayerTwoWins = false;
@@ -22,45 +22,71 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        SetupControllers();
+
+        gameplayGUI = gameObject.GetComponent<GameplayGUI>();
+        gameplayGUI.SetupGameplayGUI(this,boardManager);
+    }
+
+    public void SetupControllers()
+    {
         players = new List<IPlayer>();
 
         switch (mode)
         {
             case GameMode.PVP:
                 players.Add(gameObject.AddComponent<PlayerControls>());
-                players[0].SetupPlayerControls(boardManager, 1);
+                players[0].SetupPlayerControls(soundManager, boardManager, 1);
                 players.Add(gameObject.AddComponent<PlayerControls>());
-                players[1].SetupPlayerControls(boardManager, 2);
+                players[1].SetupPlayerControls(soundManager, boardManager, 2);
                 break;
 
             case GameMode.PVC:
                 players.Add(gameObject.AddComponent<PlayerControls>());
-                players[0].SetupPlayerControls(boardManager, 1);
+                players[0].SetupPlayerControls(soundManager, boardManager, 1);
                 players.Add(gameObject.AddComponent<ComputerPlayer>());
-                players[1].SetupPlayerControls(boardManager, 2);
+                players[1].SetupPlayerControls(soundManager, boardManager, 2);
                 break;
 
             case GameMode.CVC:
                 players.Add(gameObject.AddComponent<ComputerPlayer>());
-                players[0].SetupPlayerControls(boardManager, 1);
+                players[0].SetupPlayerControls(soundManager, boardManager, 1);
                 players.Add(gameObject.AddComponent<ComputerPlayer>());
-                players[1].SetupPlayerControls(boardManager, 2);
+                players[1].SetupPlayerControls(soundManager, boardManager, 2);
                 break;
 
             default:
                 Debug.LogError("Game mode is invalid!");
                 break;
         }
-
-        gameplayGUI = gameObject.GetComponent<GameplayGUI>();
-        gameplayGUI.SetupGameplayGUI(boardManager);
     }
 	
 	// Update is called once per frame
 	void Update () {
         boardManager.SwitchPlayer();
 
-        PlayerOneWins = boardManager.CheckForWinner(1);
-        PlayerTwoWins = boardManager.CheckForWinner(2);
+        PlayerOneWins = CheckForWinner(1);
+        PlayerTwoWins = CheckForWinner(2);
+    }
+
+    public bool CheckForWinner(int playerID)
+    {
+        int counter = 0;
+        foreach (Tile cell in boardManager.GetBoardArray())
+        {
+            if (cell.team != playerID && cell.team != 0)
+            {
+                if (cell.GetAttacker() && cell.GetAttacker().team == playerID)
+                {
+                    counter++;
+                }
+            }
+        }
+        if (counter > 2)
+        {
+            boardManager.IsPaused = true;
+            return true;
+        }
+        return false;
     }
 }

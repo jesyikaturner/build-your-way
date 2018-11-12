@@ -2,18 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerHandHandler : MonoBehaviour {
+public class PlayerHand : MonoBehaviour {
 
     private const int PLAYER_HAND_SIZE = 3;
     private const int MAX_BLOCK_CHANCE = 30;
 
-    public PlaceScript[] playerHand;
+    public Tile[] playerHand;
     public int currBlockChance;
     public int blockCounter = 0;
 
-    public void PopulatePlayerHand(int[,] coord, PlaceScript placement, int offset, float spacing, string name, int playerID)
+    public void PopulatePlayerHand(int[,] coord, Tile placement, int offset, float spacing, string name, int playerID)
     {
-        playerHand = new PlaceScript[PLAYER_HAND_SIZE];
+        playerHand = new Tile[PLAYER_HAND_SIZE];
         currBlockChance = MAX_BLOCK_CHANCE;
 
         if (coord.GetLength(0) > PLAYER_HAND_SIZE)
@@ -24,7 +24,7 @@ public class PlayerHandHandler : MonoBehaviour {
 
         for (int i = 0; i < coord.GetLength(0); i++)
         {
-            PlaceScript handTile = Instantiate(placement, new Vector3(coord[i, 0] + offset * spacing, 0, coord[i, 1] * spacing), Quaternion.identity);
+            Tile handTile = Instantiate(placement, new Vector3(coord[i, 0] + offset * spacing, 0, coord[i, 1] * spacing), Quaternion.identity);
             handTile.SetState("EMPTY");
             handTile.name = name;
             handTile.playerHand = playerID;
@@ -34,9 +34,9 @@ public class PlayerHandHandler : MonoBehaviour {
 
     public void FillHand()
     {
-        foreach (PlaceScript tile in playerHand)
+        foreach (Tile tile in playerHand)
         {
-            if (tile.state == PlaceScript.PlaceState.EMPTY)
+            if (tile.state == Tile.TileState.EMPTY)
             {
                 if (Random.Range(0, 100) <= currBlockChance)
                 {
@@ -66,7 +66,7 @@ public class PlayerHandHandler : MonoBehaviour {
         }
     }
 
-    public PlaceScript[] GetPlayerHand()
+    public Tile[] GetPlayerHand()
     {
         return playerHand;
     }

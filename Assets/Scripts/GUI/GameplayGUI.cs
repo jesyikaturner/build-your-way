@@ -10,17 +10,25 @@ public class GameplayGUI : MonoBehaviour {
     public Sprite playerTwoIcon;
 
     private BoardManager boardManager;
+    private GameManager gameManager;
+
     private Image playerIndicator;
+    private Text winnerText;
 
 	// Use this for initialization
 	void Start () {
 		
 	}
 
-    public void SetupGameplayGUI(BoardManager boardManager)
+    public void SetupGameplayGUI(GameManager gameManager, BoardManager boardManager)
     {
         this.boardManager = boardManager;
-        playerIndicator = gameplayGUI.transform.Find("PlayerIndicator").GetComponent<Image>();
+        this.gameManager = gameManager;
+
+        playerIndicator = gameplayGUI.transform.Find("INDICATOR").GetComponent<Image>();
+        winnerText = gameplayGUI.transform.Find("WINNER").GetComponent<Text>();
+
+        winnerText.gameObject.SetActive(false);
     }
 	
 	// Update is called once per frame
@@ -37,6 +45,22 @@ public class GameplayGUI : MonoBehaviour {
             default:
                 Debug.LogError("Current Player is returning a bad value.");
                 break;
-        }   
-	}
+        }
+
+
+        if (gameManager.PlayerOneWins)
+        {
+            winnerText.text = "PLAYER 1 WINS";
+            winnerText.gameObject.SetActive(true);
+        }
+
+        if (gameManager.PlayerTwoWins)
+        {
+            winnerText.text = "PLAYER 2 WINS";
+            winnerText.gameObject.SetActive(true);
+        }
+
+    }
+
+
 }

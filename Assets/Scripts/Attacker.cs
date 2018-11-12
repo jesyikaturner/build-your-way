@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
-public class AttackerScript : MonoBehaviour {
+public class Attacker : MonoBehaviour {
 
-	private SpriteRenderer _curr;
+	private SpriteRenderer sprite;
 
 	public Sprite player1_attacker, player2_attacker;
     public Sprite s_player1_attacker, s_player2_attacker;
@@ -12,7 +12,7 @@ public class AttackerScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		_curr = transform.GetChild(0).GetComponent<SpriteRenderer>();
+		sprite = transform.GetChild(0).GetComponent<SpriteRenderer>();
         attackerType = team;
 	}
 	
@@ -26,16 +26,16 @@ public class AttackerScript : MonoBehaviour {
 		switch (attackerType)
 		{
             case -2:
-                _curr.sprite = s_player2_attacker;
+                sprite.sprite = s_player2_attacker;
                 break;
             case -1:
-                _curr.sprite = s_player1_attacker;
+                sprite.sprite = s_player1_attacker;
                 break;
 			case 1:
-				_curr.sprite = player1_attacker;
+				sprite.sprite = player1_attacker;
 				break;
 			case 2:
-				_curr.sprite = player2_attacker;
+				sprite.sprite = player2_attacker;
 				break;
 			default:
 				Debug.LogError("Sprite cannot be set!");

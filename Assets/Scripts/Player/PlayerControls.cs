@@ -5,18 +5,20 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 
     // Public Variables for the Inspector
     [SerializeField]
-    private PlaceScript selected;
+    private Tile selected;
 
     // Private Variables
     private BoardManager boardManager;
+    private SoundManager soundManager;
     private int playerID;
     private float timer = 0;
 
     // Use this for initialization
 
-    public void SetupPlayerControls(BoardManager boardManager, int playerID)
+    public void SetupPlayerControls(SoundManager soundManager, BoardManager boardManager, int playerID)
     {
         this.boardManager = boardManager;
+        this.soundManager = soundManager;
         this.playerID = playerID;
     }
 	
@@ -26,6 +28,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
         if(playerID == boardManager.GetCurrPlayer())
         {
             MouseControls();
+            KeyboardControls();
         }
 
 	}
@@ -36,9 +39,9 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 		Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 		if(Physics.Raycast (mouseRay,out hit))
 		{
-			if(hit.collider.gameObject.GetComponent<PlaceScript>())
+			if(hit.collider.gameObject.GetComponent<Tile>())
 			{
-				PlaceScript temp = hit.collider.gameObject.GetComponent<PlaceScript>();
+				Tile temp = hit.collider.gameObject.GetComponent<Tile>();
 
                 boardManager.ShowBreakableTiles();
                 if (Input.GetMouseButtonUp(0))
@@ -73,7 +76,18 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 
 	}
 
-    public bool MoveTile(PlaceScript place)
+    private void KeyboardControls()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if(!boardManager.IsPaused)
+                boardManager.IsPaused = true;
+            else
+                boardManager.IsPaused = false;
+        }
+    }
+
+    public bool MoveTile(Tile place)
 	{
         if (selected && selected.GetAttacker())
             return false;
@@ -89,6 +103,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
                 boardManager.PossibleTilePlacements();
                 Debug.Log("Player has selected a hand tile.");
                 // PLAY SOUND
+                soundManager.PlaySound("SELECT");
             }
             else
 			{
@@ -100,6 +115,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
                     selected = null;
 					Debug.Log ("Player has deselected a hand tile.");
                     // PLAY SOUND
+                    soundManager.PlaySound("SELECT");
                 }
             }
 		}
@@ -111,12 +127,19 @@ public class PlayerControls : MonoBehaviour, IPlayer {
                 place.SetState(selected.GetState());
                 selected.SetState("EMPTY");
                 boardManager.ClearBoard();
-                boardManager.SubtractMove(1);
+                if(boardManager.SubtractMove(1))
+                {
+                    // PLAY SUCCESS SOUND
+                    soundManager.PlaySound("SELECT");
+                }
+                else
+                {
+                    // PLAY ERROR SOUND
+                    soundManager.PlaySound("ERROR");
+                }
                 selected.ToggleSelectable();
                 Debug.Log(string.Format("Tile x:{0}, z:{1} --> x:{2}, z:{3}", selected.xPos, selected.zPos, place.xPos, place.zPos));
                 selected = null;
-
-                // PLAY SOUND
             }
 
         }
@@ -126,7 +149,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
     /*
      * MOVE ATTACKER
      */
-    public bool MoveAttacker(PlaceScript place)
+    public bool MoveAttacker(Tile place)
 	{
         /*
          * First checks to see if the tile has an attacker on it and if the attacker belongs to the
@@ -141,6 +164,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
                 selected.GetAttacker().ToggleSelect();
                 boardManager.PossibleAttackerMoves(selected);
                 // PLAY SOUND
+                soundManager.PlaySound("SELECT");
             }
             else
             {
@@ -150,6 +174,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
                     selected.GetAttacker().ToggleSelect();
                     selected = null;
                     // PLAY SOUND
+                    soundManager.PlaySound("SELECT");
                 }
             }
         }
@@ -166,9 +191,17 @@ public class PlayerControls : MonoBehaviour, IPlayer {
                 {
                     boardManager.SetAttacker(selected, place);
                     boardManager.ClearBoard();
-                    boardManager.SubtractMove(1);
+                    if (boardManager.SubtractMove(1))
+                    {
+                        // PLAY SUCCESS SOUND
+                        soundManager.PlaySound("SELECT");
+                    }
+                    else
+                    {
+                        // PLAY ERROR SOUND
+                        soundManager.PlaySound("ERROR");
+                    }
                     selected = null;
-                    // PLAY SOUND
                 }
             }
         }
@@ -176,17 +209,36 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 	}
 
 
-    public bool DestroyTile(PlaceScript place)
+    public bool DestroyTile(Tile place)
     {
         if(place.GetState("WALK"))
         {
-            if(boardManager.SubtractMove(1))
+            if (boardManager.SubtractMove(1))
+            {
                 place.SetState("EMPTY");
+                // PLAY SUCCESS SOUND
+                soundManager.PlaySound("SELECT");
+            }
+            else
+            {
+                // PLAY ERROR SOUND
+                soundManager.PlaySound("ERROR");
+            }
+
         }
         if(place.GetState("BLOCK"))
         {
-            if(boardManager.SubtractMove(2))
+            if (boardManager.SubtractMove(2))
+            {
                 place.SetState("EMPTY");
+                // PLAY SUCCESS SOUND
+                soundManager.PlaySound("SELECT");
+            }
+            else
+            {
+                // PLAY ERROR SOUND
+                soundManager.PlaySound("ERROR");
+            }
         }
         return true;
     }
