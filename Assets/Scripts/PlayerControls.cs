@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class PlayerControls : MonoBehaviour {
+public class PlayerControls : MonoBehaviour, IPlayer {
 
     // Public Variables for the Inspector
     [SerializeField]
@@ -30,7 +30,7 @@ public class PlayerControls : MonoBehaviour {
 
 	}
 
-	void MouseControls()
+    private void MouseControls()
 	{
 		RaycastHit hit;
 		Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -73,8 +73,11 @@ public class PlayerControls : MonoBehaviour {
 
 	}
 
-	void MoveTile(PlaceScript place)
+    public bool MoveTile(PlaceScript place)
 	{
+        if (selected && selected.GetAttacker())
+            return false;
+
 		if(playerID == place.playerHand)
 		{
 			// if the player doesn't have anything selected from their hand
@@ -83,10 +86,11 @@ public class PlayerControls : MonoBehaviour {
 			{
 				selected = place;
                 selected.ToggleSelectable();
-				Debug.Log ("Player has selected a hand tile.");
                 boardManager.PossibleTilePlacements();
+                Debug.Log("Player has selected a hand tile.");
+                // PLAY SOUND
             }
-			else
+            else
 			{
 				// deselect tile.
 				if(selected == place)
@@ -95,32 +99,34 @@ public class PlayerControls : MonoBehaviour {
                     boardManager.ClearBoard();
                     selected = null;
 					Debug.Log ("Player has deselected a hand tile.");
-				}
-			}
+                    // PLAY SOUND
+                }
+            }
 		}
 		else
 		{
-			// Move the tile from the player's hand.
-			if(selected && selected.GetAttacker() == null)
-			{
-				if(place.GetState("EMPTY") && place.isSelected)
-				{
-                    place.SetState(selected.GetState());
-					selected.SetState("EMPTY");
-					Debug.Log(string.Format("Tile x:{0}, z:{1} --> x:{2}, z:{3}", selected.xPos, selected.zPos, place.xPos, place.zPos));
-                    boardManager.ClearBoard();
-                    boardManager.SubtractMove(1);
-                    selected.ToggleSelectable();
-                    selected = null;
-				}
-			}
-		}
+            // Move the tile from the player's hand.
+            if (place.GetState("EMPTY") && place.isSelected)
+            {
+                place.SetState(selected.GetState());
+                selected.SetState("EMPTY");
+                boardManager.ClearBoard();
+                boardManager.SubtractMove(1);
+                selected.ToggleSelectable();
+                Debug.Log(string.Format("Tile x:{0}, z:{1} --> x:{2}, z:{3}", selected.xPos, selected.zPos, place.xPos, place.zPos));
+                selected = null;
+
+                // PLAY SOUND
+            }
+
+        }
+        return true;
 	}
 
     /*
      * MOVE ATTACKER
-     */ 
-	void MoveAttacker(PlaceScript place)
+     */
+    public bool MoveAttacker(PlaceScript place)
 	{
         /*
          * First checks to see if the tile has an attacker on it and if the attacker belongs to the
@@ -134,6 +140,7 @@ public class PlayerControls : MonoBehaviour {
                 selected = place;
                 selected.GetAttacker().ToggleSelect();
                 boardManager.PossibleAttackerMoves(selected);
+                // PLAY SOUND
             }
             else
             {
@@ -142,6 +149,7 @@ public class PlayerControls : MonoBehaviour {
                     boardManager.ClearBoard();
                     selected.GetAttacker().ToggleSelect();
                     selected = null;
+                    // PLAY SOUND
                 }
             }
         }
@@ -160,13 +168,15 @@ public class PlayerControls : MonoBehaviour {
                     boardManager.ClearBoard();
                     boardManager.SubtractMove(1);
                     selected = null;
+                    // PLAY SOUND
                 }
             }
         }
+        return true;
 	}
 
 
-    private void DestroyTile(PlaceScript place)
+    public bool DestroyTile(PlaceScript place)
     {
         if(place.GetState("WALK"))
         {
@@ -178,6 +188,7 @@ public class PlayerControls : MonoBehaviour {
             if(boardManager.SubtractMove(2))
                 place.SetState("EMPTY");
         }
-
+        return true;
     }
+
 }

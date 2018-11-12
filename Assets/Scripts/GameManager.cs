@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour {
 
-    public BoardManager boardManager;
-    public bool player_v_computer = false;
+    public enum GameMode
+    {
+        PVP, PVC, CVC
+    }
+    public GameMode mode;
 
-    private List<PlayerControls> players;
-    private List<ComputerPlayer> computers;
+    public BoardManager boardManager;
+
+    private List<IPlayer> players;
 
     private GameplayGUI gameplayGUI;
 
@@ -18,22 +22,34 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        players = new List<PlayerControls>();
-        computers = new List<ComputerPlayer>();
+        players = new List<IPlayer>();
 
-        if (player_v_computer)
+        switch (mode)
         {
-            players.Add(gameObject.AddComponent<PlayerControls>());
-            players[0].SetupPlayerControls(boardManager, 1);
-            computers.Add(gameObject.AddComponent<ComputerPlayer>());
-            computers[0].SetupComputerControls(boardManager, 2);
-        }
-        else
-        {
-            players.Add(gameObject.AddComponent<PlayerControls>());
-            players[0].SetupPlayerControls(boardManager, 1);
-            players.Add(gameObject.AddComponent<PlayerControls>());
-            players[1].SetupPlayerControls(boardManager, 2);
+            case GameMode.PVP:
+                players.Add(gameObject.AddComponent<PlayerControls>());
+                players[0].SetupPlayerControls(boardManager, 1);
+                players.Add(gameObject.AddComponent<PlayerControls>());
+                players[1].SetupPlayerControls(boardManager, 2);
+                break;
+
+            case GameMode.PVC:
+                players.Add(gameObject.AddComponent<PlayerControls>());
+                players[0].SetupPlayerControls(boardManager, 1);
+                players.Add(gameObject.AddComponent<ComputerPlayer>());
+                players[1].SetupPlayerControls(boardManager, 2);
+                break;
+
+            case GameMode.CVC:
+                players.Add(gameObject.AddComponent<ComputerPlayer>());
+                players[0].SetupPlayerControls(boardManager, 1);
+                players.Add(gameObject.AddComponent<ComputerPlayer>());
+                players[1].SetupPlayerControls(boardManager, 2);
+                break;
+
+            default:
+                Debug.LogError("Game mode is invalid!");
+                break;
         }
 
         gameplayGUI = gameObject.GetComponent<GameplayGUI>();
@@ -43,7 +59,6 @@ public class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         boardManager.SwitchPlayer();
-        //boardManager.FillHands();
 
         PlayerOneWins = boardManager.CheckForWinner(1);
         PlayerTwoWins = boardManager.CheckForWinner(2);
