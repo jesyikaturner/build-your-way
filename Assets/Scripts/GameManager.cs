@@ -12,8 +12,6 @@ public class GameManager : MonoBehaviour {
 
     public BoardManager boardManager;
     public SoundManager soundManager;
-    private GameplayGUI gameplayGUI;
-
     private List<IPlayer> players;
 
     public bool PlayerOneWins = false;
@@ -22,10 +20,16 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        SetupControllers();
+        gameObject.GetComponent<GameplayGUI>().SetupGameplayGUI(this, boardManager);
+        gameObject.GetComponent<CanvasSwapper>().SetupCanvas(this);
+    }
 
-        gameplayGUI = gameObject.GetComponent<GameplayGUI>();
-        gameplayGUI.SetupGameplayGUI(this,boardManager);
+    // Update is called once per frame
+    void Update()
+    {
+        boardManager.SwitchPlayer();
+        PlayerOneWins = CheckForWinner(1);
+        PlayerTwoWins = CheckForWinner(2);
     }
 
     public void SetupControllers()
@@ -60,14 +64,6 @@ public class GameManager : MonoBehaviour {
                 break;
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-        boardManager.SwitchPlayer();
-
-        PlayerOneWins = CheckForWinner(1);
-        PlayerTwoWins = CheckForWinner(2);
-    }
 
     public bool CheckForWinner(int playerID)
     {
@@ -76,10 +72,8 @@ public class GameManager : MonoBehaviour {
         {
             if (cell.team != playerID && cell.team != 0)
             {
-                if (cell.GetAttacker() && cell.GetAttacker().team == playerID)
-                {
+                if (cell.GetAttacker() && cell.GetAttacker().Team == playerID)
                     counter++;
-                }
             }
         }
         if (counter > 2)

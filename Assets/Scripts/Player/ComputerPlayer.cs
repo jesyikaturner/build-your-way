@@ -19,11 +19,8 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
     private BoardManager boardManager;
     private SoundManager soundManager;
     private PlayerHand compHand;
-    private List<Tile> possibleMoves;
-    private List<Tile> goalTiles;
+    private List<Tile> possibleMoves, goalTiles, moveHistory;
     private int playerID;
-
-    private List<Tile> moveHistory;
 
     public void SetupPlayerControls(SoundManager soundManager, BoardManager boardManager, int playerID)
     {
@@ -40,14 +37,10 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         foreach(Tile cell in boardManager.GetBoardArray())
         {
             if (playerID == 2 && cell.GetState("BASE1"))
-            {
                 goalTiles.Add(cell);
-            }
 
             if (playerID == 1 && cell.GetState("BASE2"))
-            {
                 goalTiles.Add(cell);
-            }
         }
 
         StartCoroutine(ComputerLogic());
@@ -85,9 +78,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         foreach(Tile cell in boardManager.GetBoardArray())
         {
             if(cell.isSelected)
-            {
                 possibleMoves.Add(cell);
-            }
         }
 
         if (possibleMoves.Count == 0)
@@ -137,9 +128,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         foreach(Tile cell in possibleMoves)
         {
             if (moveHistory.Contains(cell))
-            {
                 return true;
-            }
         }
         return false;
     }
@@ -177,7 +166,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         // add possiblee moves that are adjacent to the attacker pieces
         foreach (Tile cell in boardManager.GetBoardArray())
         {
-            if(cell.GetAttacker() && cell.GetAttacker().team == playerID)
+            if(cell.GetAttacker() && cell.GetAttacker().Team == playerID)
             {
                 // make sure its not already on the goal tiles.
                 if(playerID == 2 && !cell.GetState("BASE1"))
@@ -251,9 +240,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
     private void UpdateGoalTiles(Tile selectedMove)
     {
         if (goalTiles.Contains(selectedMove))
-        {
             goalTiles.Remove(selectedMove);
-        }
     }
 
     public bool DestroyTile(Tile place)
@@ -284,7 +271,6 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
             selectedMove.SetState("EMPTY");
         }
         boardManager.ClearBoard();
-
         return true;
     }
 }

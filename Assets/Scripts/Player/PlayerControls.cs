@@ -25,56 +25,57 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 	// Update is called once per frame
 	void Update () 
 	{
-        if(playerID == boardManager.GetCurrPlayer())
+        if(!boardManager.IsPaused && playerID == boardManager.GetCurrPlayer())
         {
             MouseControls();
             KeyboardControls();
         }
-
 	}
 
     private void MouseControls()
 	{
 		RaycastHit hit;
 		Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Tile temp = null;
+
 		if(Physics.Raycast (mouseRay,out hit))
 		{
 			if(hit.collider.gameObject.GetComponent<Tile>())
-			{
-				Tile temp = hit.collider.gameObject.GetComponent<Tile>();
-
-                boardManager.ShowBreakableTiles();
-                if (Input.GetMouseButtonUp(0))
-				{
-					MoveTile(temp);
-                    MoveAttacker(temp);
-                    timer = 0;
-                    temp.isBreaking = false;
-                }
-
-                // If the mouse button is held down then it increases the timer
-                // and progresses through the animation.
-                if (Input.GetMouseButton(0))
-                {
-                    if(temp.GetAttacker() == null)
-                    {
-                        if (temp.isBreakable)
-                            timer += Time.deltaTime;
-
-                        if (temp.BreakAnimation(timer) != 0)
-                        {
-                            DestroyTile(temp);
-                            timer = 0f;
-                            temp.isBreaking = false;
-                            boardManager.ClearBoard();
-                        }
-                    }
-
-                }
-			}
+				temp = hit.collider.gameObject.GetComponent<Tile>();
 		}
 
-	}
+        boardManager.ShowBreakableTiles();
+        if (Input.GetMouseButtonUp(0))
+        {
+            MoveTile(temp);
+            MoveAttacker(temp);
+            timer = 0;
+            temp.isBreaking = false;
+        }
+
+        // If the mouse button is held down then it increases the timer
+        // and progresses through the animation.
+        if (Input.GetMouseButton(0))
+        {
+            if (!temp)
+                return;
+            if (temp.GetAttacker() == null)
+            {
+                if (temp.isBreakable)
+                    timer += Time.deltaTime;
+
+                if (temp.BreakAnimation(timer) != 0)
+                {
+                    DestroyTile(temp);
+                    timer = 0f;
+                    temp.isBreaking = false;
+                    boardManager.ClearBoard();
+                }
+            }
+
+        }
+
+    }
 
     private void KeyboardControls()
     {
@@ -89,6 +90,9 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 
     public bool MoveTile(Tile place)
 	{
+        if (place == null)
+            return false;
+
         if (selected && selected.GetAttacker())
             return false;
 
@@ -151,12 +155,14 @@ public class PlayerControls : MonoBehaviour, IPlayer {
      */
     public bool MoveAttacker(Tile place)
 	{
+        if (place == null)
+            return false;
         /*
          * First checks to see if the tile has an attacker on it and if the attacker belongs to the
          * current player playing. Then if the player doesn't have a tile selected, it selects that
          * tile. If the place clicks the same place again, it deselects the tile.
          */ 
-        if (place.GetAttacker() && playerID == place.GetAttacker().team)
+        if (place.GetAttacker() && playerID == place.GetAttacker().Team)
         {
             if (!selected)
             {

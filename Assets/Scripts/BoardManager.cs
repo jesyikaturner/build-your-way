@@ -9,8 +9,7 @@ public class BoardManager : MonoBehaviour {
     public Attacker playerAttacker;
 
     // Constants
-    private const int BOARD_WIDTH = 6;
-    private const int BOARD_HEIGHT = 6;
+    private const int BOARD_WIDTH = 6, BOARD_HEIGHT = 6;
     private const float BOARD_SPACING = 1f; // the distance between the tiles
     private const float PIECE_OFFSET = 0.1f; // height above the tile that pieces rest
     private const int max_moves = 2;
@@ -118,7 +117,7 @@ public class BoardManager : MonoBehaviour {
     private Attacker CreateAttacker(int team, int x, int z, string name)
     {
         Attacker attacker = Instantiate(playerAttacker, new Vector3(x, PIECE_OFFSET, z), Quaternion.identity);
-        attacker.team = team;
+        attacker.Team = team;
         attacker.name = name;
         return attacker;
     }
@@ -140,9 +139,6 @@ public class BoardManager : MonoBehaviour {
 		}
 	}
 
-    // Check to see if the attacker is on the opposing player's base. Increase the counter.
-
-
     // Move Attacker from origin tile to target tile.
     public void SetAttacker(Tile origin, Tile target)
     {
@@ -156,19 +152,11 @@ public class BoardManager : MonoBehaviour {
     public bool SubtractMove(int subtract)
     {
         if(subtract > max_moves)
-        {
-            //Debug.LogError("Move is greater than the max_moves.");
             return false;
-        }
         else if(subtract > curr_moves)
-        {
-            //Debug.LogError("Move is greater than the currently available moves.");
             return false;
-        }
         else
-        {
             curr_moves -= subtract;
-        }
         return true;
     }
 
@@ -207,7 +195,7 @@ public class BoardManager : MonoBehaviour {
     {
         foreach(Tile cell in boardArray)
         {
-            if(cell.GetAttacker() && cell.GetAttacker().team == curr_player)
+            if(cell.GetAttacker() && cell.GetAttacker().Team == curr_player)
             {
                 Tile currCell = cell;
                 foreach(Tile adjacentCell in boardArray)
@@ -245,7 +233,7 @@ public class BoardManager : MonoBehaviour {
             {
                 if (boardArray[x, z].GetAttacker())
                 {
-                    if (curr_player == boardArray[x, z].GetAttacker().team)
+                    if (curr_player == boardArray[x, z].GetAttacker().Team)
                     {
                         if (x < BOARD_WIDTH - 1)
                         {
@@ -274,7 +262,7 @@ public class BoardManager : MonoBehaviour {
     }
 
      /*
-     * Getters
+     * Getters, Setters
      */
     public Tile[,] GetBoardArray()
     {

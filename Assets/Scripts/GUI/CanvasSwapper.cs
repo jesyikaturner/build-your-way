@@ -8,16 +8,13 @@ public class CanvasSwapper : MonoBehaviour {
     public Canvas howToPlay;
     public Canvas options;
     public Canvas gameplay;
+    private GameManager gameManager;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public void SetupCanvas(GameManager gameManager)
+    {
+        this.gameManager = gameManager;
+        SetCanvas("MENU");
+    }
 
     public void SetCanvas(string menu)
     {
@@ -44,5 +41,33 @@ public class CanvasSwapper : MonoBehaviour {
                 Debug.LogErrorFormat("{0} isn't a valid canvas", menu);
                 break;
         }
+    }
+    public void Btn_Menu()
+    {
+        SetCanvas("MENU");
+    }
+
+    public void Btn_HowToPlay()
+    {
+        SetCanvas("HOWTOPLAY");
+    }
+
+    public void Btn_Options()
+    {
+        SetCanvas("OPTIONS");
+    }
+
+    public void Btn_PVP_Gameplay()
+    {
+        gameManager.mode = GameManager.GameMode.PVP;
+        gameManager.SetupControllers();
+        SetCanvas("GAMEPLAY");
+    }
+
+    public void Btn_PVC_Gameplay()
+    {
+        gameManager.mode = GameManager.GameMode.PVC;
+        gameManager.SetupControllers();
+        SetCanvas("GAMEPLAY");
     }
 }
