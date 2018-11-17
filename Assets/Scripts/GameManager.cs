@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         gameObject.GetComponent<GameplayGUI>().SetupGameplayGUI(this, boardManager);
-        gameObject.GetComponent<CanvasSwapper>().SetupCanvas(this);
+        gameObject.GetComponent<CanvasSwapper>().SetupCanvas(this, soundManager);
     }
 
     // Update is called once per frame

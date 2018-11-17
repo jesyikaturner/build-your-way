@@ -269,6 +269,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         {
             boardManager.SubtractMove(2);
             selectedMove.SetState("EMPTY");
+            soundManager.PlaySound("SELECT");
         }
         boardManager.ClearBoard();
         return true;

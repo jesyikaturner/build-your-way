@@ -9,10 +9,12 @@ public class CanvasSwapper : MonoBehaviour {
     public Canvas options;
     public Canvas gameplay;
     private GameManager gameManager;
+    private SoundManager soundManager;
 
-    public void SetupCanvas(GameManager gameManager)
+    public void SetupCanvas(GameManager gameManager, SoundManager soundManager)
     {
         this.gameManager = gameManager;
+        this.soundManager = soundManager;
         SetCanvas("MENU");
     }
 
@@ -45,16 +47,19 @@ public class CanvasSwapper : MonoBehaviour {
     public void Btn_Menu()
     {
         SetCanvas("MENU");
+        soundManager.PlaySound("SELECT");
     }
 
     public void Btn_HowToPlay()
     {
         SetCanvas("HOWTOPLAY");
+        soundManager.PlaySound("SELECT");
     }
 
     public void Btn_Options()
     {
         SetCanvas("OPTIONS");
+        soundManager.PlaySound("SELECT");
     }
 
     public void Btn_PVP_Gameplay()
@@ -62,6 +67,7 @@ public class CanvasSwapper : MonoBehaviour {
         gameManager.mode = GameManager.GameMode.PVP;
         gameManager.SetupControllers();
         SetCanvas("GAMEPLAY");
+        soundManager.PlaySound("SELECT");
     }
 
     public void Btn_PVC_Gameplay()
@@ -69,5 +75,6 @@ public class CanvasSwapper : MonoBehaviour {
         gameManager.mode = GameManager.GameMode.PVC;
         gameManager.SetupControllers();
         SetCanvas("GAMEPLAY");
+        soundManager.PlaySound("SELECT");
     }
 }
