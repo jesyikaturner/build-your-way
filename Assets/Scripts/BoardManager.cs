@@ -261,6 +261,26 @@ public class BoardManager : MonoBehaviour {
         }
     }
 
+    public void RestartBoard()
+    {
+        foreach(Tile cell in boardArray)
+        {
+            if (cell.GetAttacker())
+            {
+                Destroy(cell.GetAttacker().gameObject);
+                cell.SetAttacker(null);
+            }
+            if (!cell.GetState("EMPTY"))
+            {
+                cell.SetState("EMPTY");
+                cell.team = 0;
+            }
+        }
+        SetupBoardLayout();
+        turn = 0;
+        curr_player = 1;
+    }
+
      /*
      * Getters, Setters
      */

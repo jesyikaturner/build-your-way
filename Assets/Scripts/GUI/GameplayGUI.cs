@@ -12,8 +12,10 @@ public class GameplayGUI : MonoBehaviour {
     private BoardManager boardManager;
     private GameManager gameManager;
 
-    private Image playerIndicator;
-    private Text winnerText;
+    public Image playerIndicator;
+    public Text winnerText;
+    public GameObject restartButton;
+    public GameObject menuButton;
 
 	// Use this for initialization
 	void Start () {
@@ -25,10 +27,12 @@ public class GameplayGUI : MonoBehaviour {
         this.boardManager = boardManager;
         this.gameManager = gameManager;
 
-        playerIndicator = gameplayGUI.transform.Find("INDICATOR").GetComponent<Image>();
-        winnerText = gameplayGUI.transform.Find("WINNER").GetComponent<Text>();
+        //playerIndicator = gameplayGUI.transform.Find("INDICATOR").GetComponent<Image>();
+        //winnerText = gameplayGUI.transform.Find("WINNER").GetComponent<Text>();
 
         winnerText.gameObject.SetActive(false);
+        restartButton.SetActive(false);
+        menuButton.SetActive(false);
     }
 	
 	// Update is called once per frame
@@ -52,14 +56,43 @@ public class GameplayGUI : MonoBehaviour {
         {
             winnerText.text = "PLAYER 1 WINS";
             winnerText.gameObject.SetActive(true);
+            restartButton.SetActive(true);
+            menuButton.SetActive(true);
         }
 
         if (gameManager.PlayerTwoWins)
         {
             winnerText.text = "PLAYER 2 WINS";
             winnerText.gameObject.SetActive(true);
+            restartButton.SetActive(true);
+            menuButton.SetActive(true);
         }
 
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (!boardManager.IsPaused)
+            {
+                boardManager.IsPaused = true;
+                restartButton.SetActive(true);
+                menuButton.SetActive(true);
+            }
+            else
+            {
+                boardManager.IsPaused = false;
+                restartButton.SetActive(false);
+                menuButton.SetActive(false);
+            }
+
+        }
+
+    }
+
+    public void Btn_Restart()
+    {
+        boardManager.RestartBoard();
+        winnerText.gameObject.SetActive(false);
+        restartButton.SetActive(false);
+        menuButton.SetActive(false);
     }
 
 

@@ -28,7 +28,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
         if(!boardManager.IsPaused && playerID == boardManager.GetCurrPlayer())
         {
             MouseControls();
-            KeyboardControls();
+            //KeyboardControls();
         }
 	}
 

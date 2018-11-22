@@ -77,4 +77,9 @@ public class CanvasSwapper : MonoBehaviour {
         SetCanvas("GAMEPLAY");
         soundManager.PlaySound("SELECT");
     }
+
+    public void Btn_Restart()
+    {
+        soundManager.PlaySound("SELECT");
+    }
 }

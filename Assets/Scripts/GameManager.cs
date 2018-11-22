@@ -65,6 +65,11 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public void RemoveControllers()
+    {
+
+    }
+
     public bool CheckForWinner(int playerID)
     {
         int counter = 0;
@@ -81,6 +86,7 @@ public class GameManager : MonoBehaviour {
             boardManager.IsPaused = true;
             return true;
         }
+        boardManager.IsPaused = false;
         return false;
     }
 }
