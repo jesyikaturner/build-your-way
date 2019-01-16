@@ -5,6 +5,7 @@ using UnityEngine;
 public class CanvasSwapper : MonoBehaviour {
 
     public Canvas mainMenu;
+    public Canvas debugMenu;
     public Canvas howToPlay;
     public Canvas options;
     public Canvas gameplay;
@@ -15,12 +16,13 @@ public class CanvasSwapper : MonoBehaviour {
     {
         this.gameManager = gameManager;
         this.soundManager = soundManager;
-        SetCanvas("MENU");
+        SetCanvas("DEBUG");
     }
 
     public void SetCanvas(string menu)
     {
         mainMenu.gameObject.SetActive(false);
+        debugMenu.gameObject.SetActive(false);
         howToPlay.gameObject.SetActive(false);
         options.gameObject.SetActive(false);
         gameplay.gameObject.SetActive(false);
@@ -29,6 +31,9 @@ public class CanvasSwapper : MonoBehaviour {
         {
             case "MENU":
                 mainMenu.gameObject.SetActive(true);
+                break;
+            case "DEBUG":
+                debugMenu.gameObject.SetActive(true);
                 break;
             case "HOWTOPLAY":
                 howToPlay.gameObject.SetActive(true);
@@ -73,6 +78,14 @@ public class CanvasSwapper : MonoBehaviour {
     public void Btn_PVC_Gameplay()
     {
         gameManager.mode = GameManager.GameMode.PVC;
+        gameManager.SetupControllers();
+        SetCanvas("GAMEPLAY");
+        soundManager.PlaySound("SELECT");
+    }
+
+    public void Btn_CvC_Gameplay()
+    {
+        gameManager.mode = GameManager.GameMode.CVC;
         gameManager.SetupControllers();
         SetCanvas("GAMEPLAY");
         soundManager.PlaySound("SELECT");

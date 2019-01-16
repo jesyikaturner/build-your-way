@@ -12,15 +12,19 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
     private Tile selected;
 
     // Constants
-    private const float moveDelay = 0.4f;
-    private const int MAX_MOVE_HISTORY = 2;
+    private const float moveDelay = 0.2f;
+    private const int MAX_INVALID_MOVES = 3;
 
     // Private Variables
     private BoardManager boardManager;
     private SoundManager soundManager;
     private PlayerHand compHand;
+    [SerializeField]
     private List<Tile> possibleMoves, goalTiles, moveHistory;
     private int playerID;
+    private int invalidMoveCounter;
+
+    //private bool moveFound = false;
 
     public void SetupPlayerControls(SoundManager soundManager, BoardManager boardManager, int playerID)
     {
@@ -48,23 +52,27 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
 
     private IEnumerator ComputerLogic()
     {
-        while(!boardManager.IsPaused)
+        while (!boardManager.IsPaused)
         {
             yield return new WaitForSeconds(moveDelay);
-            if(boardManager.GetCurrPlayer() == playerID)
+            if (boardManager.GetCurrPlayer() == playerID)
             {
                 if (!DestroyTile(null))
                 {
                     if (!MoveTile(null))
                     {
-                        MoveAttacker(null);
+                        if (boardManager.GetCurrMoveAmount() == 2 && invalidMoveCounter > 1)
+                            DestroyTile(null);
+                        else
+                            MoveAttacker(null);
                     }
-
                 }
-
             }
+
+
         }
     }
+
     /* Goes through the steps of random selecting, add the possible 
      * moves to a list then random selecting one of those for the tile to be moved to.
      */
@@ -93,7 +101,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         // PLAY SOUND
         soundManager.PlaySound("SELECT");
 
-        UpdateHistory(selectedMove);
+        //UpdateHistory(selectedMove);
         boardManager.SubtractMove(1);
 
 
@@ -101,36 +109,6 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         selected = null;
         boardManager.ClearBoard();
         return true;
-    }
-
-    /*
-     * Keeps the movehistory to a set size. If it exceeds the limit, then it clears
-     * the list and adds the new entry.
-     */ 
-    private void UpdateHistory(Tile selectedMove)
-    {
-        if(moveHistory.Count < MAX_MOVE_HISTORY)
-        {
-            moveHistory.Add(selectedMove);
-        }
-        else
-        {
-            moveHistory.Clear();
-            moveHistory.Add(selectedMove);
-        }
-    }
-
-    /*
-     * Checks if a move in the possiblemoves list is already in the movehistory list.
-     */ 
-    private bool CheckHistory(List<Tile> possibleMoves)
-    {
-        foreach(Tile cell in possibleMoves)
-        {
-            if (moveHistory.Contains(cell))
-                return true;
-        }
-        return false;
     }
 
     /*
@@ -163,7 +141,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         // clear the list for possible moves
         possibleMoves.Clear();
 
-        // add possiblee moves that are adjacent to the attacker pieces
+        // grabs all the attacker pieces that aren't on the goal tiles
         foreach (Tile cell in boardManager.GetBoardArray())
         {
             if(cell.GetAttacker() && cell.GetAttacker().Team == playerID)
@@ -180,25 +158,33 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         if(possibleMoves.Count == 0)
             return false;
 
+        if(invalidMoveCounter > MAX_INVALID_MOVES)
+        {
+            foreach(Tile cell in possibleMoves)
+            {
+                cell.GetAttacker().ClearHistory(cell);
+            }
+            invalidMoveCounter = 0;
+        }
+
         Tile selectedMove = null;
-        
-        // checks to see if any of the possible moves are already in the history
-        if (!CheckHistory(possibleMoves))
+
+        foreach (Tile cell in possibleMoves)
         {
-            // if there isnt then it'll get the one closest to the goal tiles
-            selectedMove = GetClosestPosition(possibleMoves);
-            if (selectedMove)
-                selected = selectedMove;
-            else
-                selected = possibleMoves[Random.Range(0, possibleMoves.Count)];
+            if (!cell.GetAttacker().CheckHistory(possibleMoves))
+            {
+                selectedMove = GetClosestPosition(possibleMoves);
+                break;
+            }
         }
+
+        if(selectedMove)
+            selected = selectedMove;
         else
-        {
-            // if one of the moves are already in there, then it'll just choose randomly.
             selected = possibleMoves[Random.Range(0, possibleMoves.Count)];
-        }
 
 
+        // checks to see if any of the possible moves are already in the history
         possibleMoves.Clear();
         boardManager.PossibleAttackerMoves(selected);
 
@@ -212,22 +198,19 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         if (possibleMoves.Count == 0)
             return false;
 
-        if (!CheckHistory(possibleMoves))
+
+        selectedMove = GetClosestPosition(possibleMoves);
+        if (!selectedMove || selected.GetAttacker().CheckHistory(selectedMove))
         {
-            selectedMove = GetClosestPosition(possibleMoves);
-            if (!selectedMove)
-                selectedMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
-        }
-        else
-        {
-            selectedMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
+            invalidMoveCounter++;
+            boardManager.ClearBoard();
+            return false;
         }
 
         selected.GetAttacker().ToggleSelect();
         boardManager.SetAttacker(selected, selectedMove);
         boardManager.ClearBoard();
         UpdateGoalTiles(selectedMove);
-        UpdateHistory(selectedMove);
         boardManager.SubtractMove(1);
 
         // PLAY SOUND
@@ -259,7 +242,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
             return false;
 
         Tile selectedMove = GetClosestPosition(possibleMoves);
-        if(!selectedMove)
+        if (!selectedMove)
             selectedMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
 
         if (selectedMove.GetState("WALK"))
@@ -267,9 +250,15 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
 
         if (selectedMove.GetState("BLOCK"))
         {
-            boardManager.SubtractMove(2);
-            selectedMove.SetState("EMPTY");
-            soundManager.PlaySound("SELECT");
+            if(boardManager.SubtractMove(2))
+            {
+                selectedMove.SetState("EMPTY");
+                soundManager.PlaySound("SELECT");
+            }
+            else
+            {
+                return false;
+            }
         }
         boardManager.ClearBoard();
         return true;

@@ -47,6 +47,8 @@ public class PlayerControls : MonoBehaviour, IPlayer {
         boardManager.ShowBreakableTiles();
         if (Input.GetMouseButtonUp(0))
         {
+            if (!temp)
+                return;
             MoveTile(temp);
             MoveAttacker(temp);
             timer = 0;

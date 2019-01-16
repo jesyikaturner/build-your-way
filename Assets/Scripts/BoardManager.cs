@@ -23,6 +23,7 @@ public class BoardManager : MonoBehaviour {
     private Tile[,] boardArray;
     private List<PlayerHand> handHandlers;
     private int turn = 0;
+    [SerializeField]
     private int curr_moves = 2;
 	private int curr_player = 1;
     private bool isPaused = false;
@@ -96,9 +97,9 @@ public class BoardManager : MonoBehaviour {
                     }
 
                     if (cell.GetState("BASE1"))
-                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 1 Attacker"));
+                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 1 Attacker",cell));
                     if (cell.GetState("BASE2"))
-                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 2 Attacker"));
+                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 2 Attacker",cell));
                 }
 
             }
@@ -114,11 +115,12 @@ public class BoardManager : MonoBehaviour {
     }
 
     // Creates an attacker and assigns a team to it
-    private Attacker CreateAttacker(int team, int x, int z, string name)
+    private Attacker CreateAttacker(int team, int x, int z, string name, Tile originTile)
     {
         Attacker attacker = Instantiate(playerAttacker, new Vector3(x, PIECE_OFFSET, z), Quaternion.identity);
         attacker.Team = team;
         attacker.name = name;
+        attacker.UpdateHistory(originTile);
         return attacker;
     }
 
@@ -143,6 +145,7 @@ public class BoardManager : MonoBehaviour {
     public void SetAttacker(Tile origin, Tile target)
     {
         target.SetAttacker(origin.GetAttacker());
+        origin.GetAttacker().UpdateHistory(target);
         origin.GetAttacker().transform.position = new Vector3(target.transform.position.x, PIECE_OFFSET, target.transform.position.z);
         origin.GetAttacker().ToggleSelect();
         origin.SetAttacker(null);
@@ -297,6 +300,11 @@ public class BoardManager : MonoBehaviour {
     public int GetCurrPlayer()
     {
         return curr_player;
+    }
+
+    public int GetCurrMoveAmount()
+    {
+        return curr_moves;
     }
 
     public bool IsPaused
