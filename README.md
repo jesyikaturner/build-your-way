@@ -5,4 +5,4 @@ The aim of Build Your Way is to create a pathway for your attackers to reach the
 
 Project Timeline: https://trello.com/b/0CP5YwUD
 
-Projected Completion date: 30/11/18.
+Revised Project Completion date: 30/01/19.
