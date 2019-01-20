@@ -1,10 +1,13 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class SoundManager : MonoBehaviour {
 
-    public AudioSource source;
+    public AudioSource soundSource;
+    public AudioSource musicSource;
+
+    public AudioMixer mixer;
 
     // Sound Effects
     public AudioClip errorClip;
@@ -20,17 +23,17 @@ public class SoundManager : MonoBehaviour {
         switch (sound)
         {
             case "ERROR":
-                source.clip = errorClip;
+                soundSource.clip = errorClip;
                 break;
             case "SELECT":
-                source.clip = selectClip;
+                soundSource.clip = selectClip;
                 break;
             default:
                 Debug.LogErrorFormat("{0} isn't a valid string for sound selection", sound);
                 break;
         }
-        if (!source.isPlaying)
-            source.Play();
+        if (!soundSource.isPlaying)
+            soundSource.Play();
     }
 
     public void PlayMusic(int music)
@@ -48,5 +51,15 @@ public class SoundManager : MonoBehaviour {
                 break;
 
         }
+    }
+
+    public void SetVolume(string name, float maxValue, float value)
+    {
+        mixer.SetFloat(name, ConvertToDecibel(value / maxValue));
+    }
+
+    private float ConvertToDecibel(float value)
+    {
+        return Mathf.Log10(Mathf.Max(value, 0.0001f)) * 20f;
     }
 }

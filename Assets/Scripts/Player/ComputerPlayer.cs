@@ -23,9 +23,6 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
     private List<Tile> possibleMoves, goalTiles;
     private int playerID;
     private int invalidMoveCounter;
-    private bool moveLoop = true;
-
-    //private bool moveFound = false;
 
     public void SetupPlayerControls(SoundManager soundManager, BoardManager boardManager, int playerID)
     {
@@ -50,10 +47,6 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         StartCoroutine(ComputerLogic());
     }
 
-    /// <summary>
-    /// Issues are happening. It's selecting a hand tile when it shouldnt be.
-    /// </summary>
-    /// <returns></returns>
     private IEnumerator ComputerLogic()
     {
         while (!boardManager.IsPaused)
@@ -322,6 +315,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
                 else
                 {
                     Debug.LogErrorFormat("{0}: Exiting out of DestroyTile(), unable to make this move.", playerID);
+                    Debug.Break();
                     return false;
                 }
             }
