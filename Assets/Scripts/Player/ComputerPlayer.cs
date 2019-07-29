@@ -23,7 +23,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
     private List<Tile> possibleMoves, goalTiles;
     private int playerID;
     private int invalidMoveCounter;
-    private bool moveLoop = true;
+    //private bool moveLoop = true;
 
     //private bool moveFound = false;
 
@@ -61,13 +61,33 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
             yield return new WaitForSeconds(moveDelay);
             if (boardManager.GetCurrPlayer() == playerID)
             {
+
+                int random = Random.Range(1, 4);
+
+                switch (random)
+                {
+                    case 1:
+                        DestroyTile(null);
+                        break;
+                    case 2:
+                        MoveTile(null);
+                        break;
+                    case 3:
+                        MoveAttacker(null);
+                        break;
+                    default:
+                        Debug.LogError(random);
+                        break;
+                }
+
+                /*
                 if (!DestroyTile(null))
                 {
                     if (!MoveTile(null))
                     {
                         MoveAttacker(null);
                     }
-                }
+                }*/
             }
         }
     }
