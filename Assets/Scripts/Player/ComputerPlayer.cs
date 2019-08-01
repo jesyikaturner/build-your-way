@@ -52,10 +52,10 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         while (!boardManager.IsPaused)
         {
             yield return new WaitForSeconds(moveDelay);
-            if (boardManager.GetCurrPlayer() == playerID)
+            if (boardManager.GetCurrPlayer() == playerID) 
             {
 
-                int random = Random.Range(1, 4);
+                int random = Random.Range(1, 4); // Random number between 1 and 3
 
                 switch (random)
                 {
