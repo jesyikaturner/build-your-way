@@ -16,8 +16,20 @@ public class BoardManager : MonoBehaviour {
 
     private readonly int[,] PLAYER_ONE_COORDS = { { 0, 0 }, { 0, 1 }, { 0, 2 } };
     private readonly int[,] PLAYER_TWO_COORDS = { { 5, 3 }, { 5, 4 }, { 5, 5 } };
-    //B1 - first 3, B2 - next 3, B - remaining 4
-    private readonly int[,] BOARD_LAYOUT = { { 0, 0 }, { 1, 0 }, { 2, 2 }, { 3, 3 }, { 4, 5 }, { 5, 5 }, { 4, 1 }, { 3, 2 }, { 2, 3 }, { 1, 4 } };
+
+    // TileInfo(string name, int team, int z, int x) 
+    private readonly TileInfo[] STANDARD_BOARD = {
+        new TileInfo("BASE1", 1, 0, 0),
+        new TileInfo("BASE1", 1, 1, 0),
+        new TileInfo("BASE1", 1, 2, 2),
+        new TileInfo("BASE2", 2, 3, 3),
+        new TileInfo("BASE2", 2, 4, 5),
+        new TileInfo("BASE2", 2, 5, 5),
+        new TileInfo("BLOCK", 0, 4, 1),
+        new TileInfo("BLOCK", 0, 3, 2),
+        new TileInfo("BLOCK", 0, 2, 3),
+        new TileInfo("BLOCK", 0, 1, 4)
+    };
 
     // Private Variables
     private Tile[,] boardArray;
@@ -76,39 +88,22 @@ public class BoardManager : MonoBehaviour {
     }
 
     // Applies a preset layout to the board
-    // this needs to be less specific and more expandable. so i can input different board layouts with different amounts
-    // of base tiles and block tiles or special tiles
     private void SetupBoardLayout()
     {
-        for (int i = 0; i < BOARD_LAYOUT.GetLength(0); i++)
+        foreach(Tile cell in boardArray)
         {
-            foreach (Tile cell in boardArray)
+            foreach(TileInfo tile in STANDARD_BOARD)
             {
-                if (cell.zPos == BOARD_LAYOUT[i, 0] && cell.xPos == BOARD_LAYOUT[i, 1])
+                if(cell.zPos == tile.GetZPos() && cell.xPos == tile.GetXPos())
                 {
-                    if (i < 3)
-                    {
-                        cell.SetState("BASE1");
-                        cell.team = 1;
-                    }
-         
-                    if (i > 2)
-                    {
-                        cell.SetState("BASE2");
-                        cell.team = 2;
-                    } 
-                    if (i > 5)
-                    {
-                        cell.SetState("BLOCK");
-                        cell.team = 0;
-                    }
+                    cell.SetState(tile.GetState());
+                    cell.team = tile.GetTeam();
 
                     if (cell.GetState("BASE1"))
-                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 1 Attacker",cell));
+                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 1 Attacker", cell));
                     if (cell.GetState("BASE2"))
-                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 2 Attacker",cell));
+                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 2 Attacker", cell));
                 }
-
             }
         }
     }
