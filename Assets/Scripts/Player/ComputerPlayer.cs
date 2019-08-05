@@ -12,7 +12,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
     private Tile selected;
 
     // Constants
-    private const float moveDelay = 0.2f;
+    private const float moveDelay = 0.01f; // moveDelay for play should be 0.2f
     private const int MAX_INVALID_MOVES = 3;
 
     // Private Variables
@@ -32,6 +32,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
 
         possibleMoves = new List<Tile>();
         goalTiles = new List<Tile>();
+
         compHand = boardManager.GetHands()[playerID-1];
 
         // Getting the tiles that the attackers need to move to.
@@ -44,20 +45,26 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
                 goalTiles.Add(cell);
         }
 
+        StartComputerLogic();
+    }
+
+    public void StartComputerLogic()
+    {
+        if (boardManager.IsPaused())
+            return;
         StartCoroutine(ComputerLogic());
     }
 
     private IEnumerator ComputerLogic()
     {
-        while (!boardManager.IsPaused)
+        while (!boardManager.IsPaused())
         {
             yield return new WaitForSeconds(moveDelay);
             if (boardManager.GetCurrPlayer() == playerID) 
             {
+                int choice = Random.Range(1, 4); // Random number between 1 and 3
 
-                int random = Random.Range(1, 4); // Random number between 1 and 3
-
-                switch (random)
+                switch (choice)
                 {
                     case 1:
                         DestroyTile(null);
@@ -69,7 +76,7 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
                         MoveAttacker(null);
                         break;
                     default:
-                        Debug.LogError(random);
+                        Debug.LogError(choice);
                         break;
                 }
 

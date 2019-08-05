@@ -175,7 +175,7 @@ public class BoardManager : MonoBehaviour {
         {
             if(Mathf.Abs(cell.xPos - place.xPos) + Mathf.Abs(cell.zPos - place.zPos) <= 1)
             {
-                if((cell.GetState("WALK") || cell.GetState("BASE1") || cell.GetState("BASE2")) && !cell.GetAttacker())
+                if((cell.GetState("WALK") || cell.GetState("BASE1") || cell.GetState("BASE2")) && !cell.GetAttacker() && !cell.isSelected)
                 {
                     cell.ToggleSelectable();
                     canMove = true;
@@ -310,17 +310,14 @@ public class BoardManager : MonoBehaviour {
         return curr_moves;
     }
 
-    public bool IsPaused
+    public bool IsPaused()
     {
-        get
-        {
-            return isPaused;
-        }
+        return isPaused;
+    }
 
-        set
-        {
-            isPaused = value;
-        }
+    public void IsPaused(bool isPaused)
+    {
+        this.isPaused = isPaused;
     }
 
 }

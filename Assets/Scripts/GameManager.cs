@@ -70,6 +70,11 @@ public class GameManager : MonoBehaviour {
 
     }
 
+    public List<IPlayer> GetPlayers()
+    {
+        return players;
+    }
+
     public bool CheckForWinner(int playerID)
     {
         int counter = 0;
@@ -83,10 +88,10 @@ public class GameManager : MonoBehaviour {
         }
         if (counter > 2)
         {
-            boardManager.IsPaused = true;
+            boardManager.IsPaused(true);
             return true;
         }
-        boardManager.IsPaused = false;
+        //boardManager.IsPaused(false);
         return false;
     }
 }

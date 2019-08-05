@@ -25,7 +25,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 	// Update is called once per frame
 	void Update () 
 	{
-        if(!boardManager.IsPaused && playerID == boardManager.GetCurrPlayer())
+        if(!boardManager.IsPaused() && playerID == boardManager.GetCurrPlayer())
         {
             MouseControls();
             //KeyboardControls();
@@ -77,17 +77,6 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 
         }
 
-    }
-
-    private void KeyboardControls()
-    {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            if(!boardManager.IsPaused)
-                boardManager.IsPaused = true;
-            else
-                boardManager.IsPaused = false;
-        }
     }
 
     public bool MoveTile(Tile place)

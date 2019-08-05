@@ -68,31 +68,50 @@ public class GameplayGUI : MonoBehaviour {
             menuButton.SetActive(true);
         }
 
-        if (Input.GetKeyDown(KeyCode.P))
+        // player can press P during menu which causes issues.
+        if (Input.GetKeyUp(KeyCode.P))
         {
-            if (!boardManager.IsPaused)
-            {
-                boardManager.IsPaused = true;
-                restartButton.SetActive(true);
-                menuButton.SetActive(true);
-            }
-            else
-            {
-                boardManager.IsPaused = false;
-                restartButton.SetActive(false);
-                menuButton.SetActive(false);
-            }
-
+            HandlePause();
         }
+    }
 
+    public void HandlePause()
+    {
+        boardManager.IsPaused(!boardManager.IsPaused());
+        StartComputerPlayer();
+
+        if (boardManager.IsPaused())
+        {
+            restartButton.SetActive(true);
+            menuButton.SetActive(true);
+        }
+        else
+        {
+            restartButton.SetActive(false);
+            menuButton.SetActive(false);
+        }
+    }
+
+    private void StartComputerPlayer()
+    {
+        List<IPlayer> players = gameManager.GetPlayers();
+
+        foreach (IPlayer player in players)
+        {
+            if (player.GetType() == typeof(ComputerPlayer))
+            {
+                ComputerPlayer cp = (ComputerPlayer)player;
+                cp.StartComputerLogic();
+            }
+        }
     }
 
     public void Btn_Restart()
     {
         boardManager.RestartBoard();
+        HandlePause();
+
         winnerText.gameObject.SetActive(false);
-        restartButton.SetActive(false);
-        menuButton.SetActive(false);
     }
 
 
