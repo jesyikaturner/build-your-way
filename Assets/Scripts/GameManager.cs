@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour {
 
     public bool PlayerOneWins = false;
     public bool PlayerTwoWins = false;
+    public bool isPlaying = false;
 
 
 	// Use this for initialization
@@ -67,7 +68,13 @@ public class GameManager : MonoBehaviour {
 
     public void RemoveControllers()
     {
-
+        foreach(IPlayer player in players)
+        {
+            if (player.GetType() == typeof(ComputerPlayer))
+                Destroy(gameObject.GetComponent<ComputerPlayer>());
+            if (player.GetType() == typeof(PlayerControls))
+                Destroy(gameObject.GetComponent<PlayerControls>());
+        }
     }
 
     public List<IPlayer> GetPlayers()

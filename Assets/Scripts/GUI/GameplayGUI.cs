@@ -68,8 +68,7 @@ public class GameplayGUI : MonoBehaviour {
             menuButton.SetActive(true);
         }
 
-        // player can press P during menu which causes issues.
-        if (Input.GetKeyUp(KeyCode.P))
+        if (Input.GetKeyUp(KeyCode.P) && gameManager.isPlaying)
         {
             HandlePause();
         }
@@ -110,7 +109,6 @@ public class GameplayGUI : MonoBehaviour {
     {
         boardManager.RestartBoard();
         HandlePause();
-
         winnerText.gameObject.SetActive(false);
     }
 

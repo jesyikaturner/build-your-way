@@ -31,9 +31,11 @@ public class CanvasSwapper : MonoBehaviour {
         {
             case "MENU":
                 mainMenu.gameObject.SetActive(true);
+                gameManager.isPlaying = false;
                 break;
             case "DEBUG":
                 debugMenu.gameObject.SetActive(true);
+                gameManager.isPlaying = false;
                 break;
             case "HOWTOPLAY":
                 howToPlay.gameObject.SetActive(true);
@@ -43,6 +45,7 @@ public class CanvasSwapper : MonoBehaviour {
                 break;
             case "GAMEPLAY":
                 gameplay.gameObject.SetActive(true);
+                gameManager.isPlaying = true;
                 break;
             default:
                 Debug.LogErrorFormat("{0} isn't a valid canvas", menu);
@@ -53,6 +56,7 @@ public class CanvasSwapper : MonoBehaviour {
     {
         SetCanvas("MENU");
         soundManager.PlaySound("SELECT");
+        gameManager.RemoveControllers();
     }
 
     public void Btn_HowToPlay()
@@ -91,7 +95,7 @@ public class CanvasSwapper : MonoBehaviour {
         soundManager.PlaySound("SELECT");
     }
 
-    // TODO
+    // Allows the restart button to play the sound effect
     public void Btn_Restart()
     {
         soundManager.PlaySound("SELECT");
