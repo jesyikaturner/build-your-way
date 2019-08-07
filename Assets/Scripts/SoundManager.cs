@@ -20,6 +20,9 @@ public class SoundManager : MonoBehaviour {
 
     public void PlaySound(string sound)
     {
+        float random = Random.Range(1, 4);
+        soundSource.pitch = random;
+
         switch (sound)
         {
             case "ERROR":

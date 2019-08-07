@@ -68,6 +68,8 @@ public class GameManager : MonoBehaviour {
 
     public void RemoveControllers()
     {
+        if (players == null || players.Count < 1) // if player doesnt exist, return out
+            return;
         foreach(IPlayer player in players)
         {
             if (player.GetType() == typeof(ComputerPlayer))
