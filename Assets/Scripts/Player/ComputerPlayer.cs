@@ -8,21 +8,21 @@ using System.Collections.Generic;
 public class ComputerPlayer : MonoBehaviour, IPlayer {
 
     // Public Variables for the Inspector
-    [SerializeField]
-    private Tile selected;
+    [SerializeField] private Tile selected;
 
     // Constants
-    private const float moveDelay = 0.01f; // moveDelay for play should be 0.2f
+    private const float moveDelay = 0.8f; // moveDelay for play should be 0.2f
     private const int MAX_INVALID_MOVES = 3;
 
     // Private Variables
     private BoardManager boardManager;
     private SoundManager soundManager;
     private PlayerHand compHand;
-    [SerializeField]
-    private List<Tile> possibleMoves, goalTiles;
+    [SerializeField] private List<Tile> possibleMoves, goalTiles;
     private int playerID;
     private int invalidMoveCounter;
+
+    private float timer = 0f;
 
     public void SetupPlayerControls(SoundManager soundManager, BoardManager boardManager, int playerID)
     {
@@ -35,8 +35,13 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
 
         compHand = boardManager.GetHands()[playerID-1];
 
-        // Getting the tiles that the attackers need to move to.
-        foreach(Tile cell in boardManager.GetBoardArray())
+        SetupBaseTiles();
+    }
+
+    // Getting the tiles that the attackers need to move to.
+    private void SetupBaseTiles()
+    {
+        foreach (Tile cell in boardManager.GetBoardArray())
         {
             if (playerID == 2 && cell.GetState("BASE1"))
                 goalTiles.Add(cell);
@@ -44,51 +49,50 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
             if (playerID == 1 && cell.GetState("BASE2"))
                 goalTiles.Add(cell);
         }
-
-        StartComputerLogic();
     }
 
-    public void StartComputerLogic()
+    private bool CheckPossibleMoves()
     {
-        if (boardManager.IsPaused())
-            return;
-        StartCoroutine(ComputerLogic());
-    }
-
-    private IEnumerator ComputerLogic()
-    {
-        while (!boardManager.IsPaused())
+        if (possibleMoves.Count == 0)
         {
-            yield return new WaitForSeconds(moveDelay);
-            if (boardManager.GetCurrPlayer() == playerID) 
-            {
-                int choice = Random.Range(1, 4); // Random number between 1 and 3
+            Debug.LogFormat("{0}: Increasing invalidMoveCounter by 1. Counter at {1}", playerID, invalidMoveCounter);
+            invalidMoveCounter++;
 
-                switch (choice)
-                {
-                    case 1:
-                        DestroyTile(null);
-                        break;
-                    case 2:
-                        MoveTile(null);
-                        break;
-                    case 3:
-                        MoveAttacker(null);
-                        break;
-                    default:
-                        Debug.LogError(choice);
-                        break;
-                }
+            selected = null;
+            boardManager.ClearBoard();
+            return false;
+        }
+        return true;
+    }
 
-                /*
-                if (!DestroyTile(null))
-                {
-                    if (!MoveTile(null))
-                    {
-                        MoveAttacker(null);
-                    }
-                }*/
-            }
+    void Update()
+    {
+        int choice = Random.Range(1, 4);
+
+        timer = timer > 0f ? timer -= Time.deltaTime : 0f;
+
+        if (boardManager.GetCurrPlayer() != playerID || boardManager.IsPaused() || timer > 0f)
+            choice = 0;
+
+        switch(choice)
+        {
+            case 1:
+                if (DestroyTile(null))
+                    timer = moveDelay;
+                break;
+            case 2:
+                if (MoveTile(null))
+                    timer = moveDelay;
+                break;
+            case 3:
+                if (MoveAttacker(null))
+                    timer = moveDelay;
+                break;
+
+            default:
+                // continue without doing anything
+                //Debug.LogError(choice);
+                break;
         }
     }
 
@@ -97,14 +101,14 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
      */
     public bool MoveTile(Tile place)
     {
+        Debug.LogFormat("{0}: Cleared possibleMoves array", playerID);
+        possibleMoves.Clear();
+
         if (invalidMoveCounter > MAX_INVALID_MOVES)
         {
             Debug.LogFormat("{0}: Exiting, too many invalid moves. Counter at {1}", playerID, invalidMoveCounter);
             return false;
         }
-
-        Debug.LogFormat("{0}: Cleared possibleMoves array", playerID);
-        possibleMoves.Clear();
 
         Debug.LogFormat("{0}: Showing possible moves.", playerID);
         boardManager.PossibleTilePlacements();
@@ -118,15 +122,9 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
             }
         }
         Debug.LogFormat("{0}: Selected tiles all added.", playerID);
-
-        if (possibleMoves.Count == 0)
+        if (!CheckPossibleMoves())
         {
-            Debug.LogFormat("{0}: Increasing invalidMoveCounter by 1. Counter at {1}", playerID, invalidMoveCounter);
-            invalidMoveCounter++;
-
             Debug.LogFormat("{0}: Exiting out of MoveTile(), there's no possible moves", playerID);
-            selected = null;
-            boardManager.ClearBoard();
             return false;
         }
 
@@ -147,8 +145,13 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
             possibleMoves[Random.Range(0, possibleMoves.Count)].SetState(selected.GetState());
         }
 
+        timer = moveDelay;
 
-        // PLAY SOUND
+        while(timer > 0f)
+        {
+            timer -= Time.deltaTime;
+        }
+
         soundManager.PlaySound("SELECT");
 
         boardManager.SubtractMove(1);
@@ -266,6 +269,13 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
             invalidMoveCounter = 0;
         }
 
+        timer = moveDelay;
+
+        while (timer > 0f)
+        {
+            timer -= Time.deltaTime;
+        }
+
         selected.GetAttacker().ToggleSelect();
         boardManager.SetAttacker(selected, selectedMove);
         boardManager.ClearBoard();
@@ -309,11 +319,19 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
             boardManager.ClearBoard();
             return false;
         }
-            
+
+        // move delay
+        timer = moveDelay;
+
+        while (timer > 0f)
+        {
+            timer -= Time.deltaTime;
+        }
 
         Tile selectedMove = GetClosestPosition(possibleMoves);
         if (!selectedMove)
             selectedMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
+
 
         if (selectedMove.GetState("BLOCK"))
         {

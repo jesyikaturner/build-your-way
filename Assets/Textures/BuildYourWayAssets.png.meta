@@ -1,29 +1,72 @@
 fileFormatVersion: 2
-guid: c0f5a2f6052f89543928a0c64e7289bb
+guid: 969e4e0d021386f45a476ed051c3d5c8
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: BuildYourWayAssets_0
-    21300002: BuildYourWayAssets_1
-    21300004: BuildYourWayAssets_2
-    21300006: BuildYourWayAssets_3
-    21300008: BuildYourWayAssets_4
-    21300010: BuildYourWayAssets_5
-    21300012: BuildYourWayAssets_6
-    21300014: BuildYourWayAssets_7
-    21300016: BuildYourWayAssets_8
-    21300018: BuildYourWayAssets_9
-    21300020: BuildYourWayAssets_10
-    21300022: BuildYourWayAssets_11
-    21300024: BuildYourWayAssets_12
-    21300026: BuildYourWayAssets_13
-    21300028: BuildYourWayAssets_14
-    21300030: BuildYourWayAssets_15
-    21300032: BuildYourWayAssets_16
-    21300034: BuildYourWayAssets_17
-    21300036: BuildYourWayAssets_18
-    21300038: BuildYourWayAssets_19
+  internalIDToNameTable:
+  - first:
+      213: 1247741727299228335
+    second: BuildYourWayAssets_0
+  - first:
+      213: 1968043286335789600
+    second: BuildYourWayAssets_0
+  - first:
+      213: 3335841421138594507
+    second: BuildYourWayAssets_1
+  - first:
+      213: -3931194436491659533
+    second: BuildYourWayAssets_2
+  - first:
+      213: -1724801235375628949
+    second: BuildYourWayAssets_3
+  - first:
+      213: 1591872420958258207
+    second: BuildYourWayAssets_4
+  - first:
+      213: -6167735133177027912
+    second: BuildYourWayAssets_5
+  - first:
+      213: 2442829571497383603
+    second: BuildYourWayAssets_6
+  - first:
+      213: 6819689143036527050
+    second: BuildYourWayAssets_7
+  - first:
+      213: 7801701865459849651
+    second: BuildYourWayAssets_8
+  - first:
+      213: 3739965962771623940
+    second: BuildYourWayAssets_9
+  - first:
+      213: 1814482438713699581
+    second: BuildYourWayAssets_10
+  - first:
+      213: -3350174318481837016
+    second: BuildYourWayAssets_11
+  - first:
+      213: -3616257123805654580
+    second: BuildYourWayAssets_12
+  - first:
+      213: -4119978125982121407
+    second: BuildYourWayAssets_13
+  - first:
+      213: -2767039274757811958
+    second: BuildYourWayAssets_14
+  - first:
+      213: 6089569434656412315
+    second: BuildYourWayAssets_15
+  - first:
+      213: -1641994464613482713
+    second: BuildYourWayAssets_16
+  - first:
+      213: -6698500420634539052
+    second: BuildYourWayAssets_17
+  - first:
+      213: 1707073793421923528
+    second: BuildYourWayAssets_18
+  - first:
+      213: 5120966556851767247
+    second: BuildYourWayAssets_19
   externalObjects: {}
-  serializedVersion: 7
+  serializedVersion: 11
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -56,18 +99,18 @@ TextureImporter:
     mipBias: -100
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: -1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
   spriteMode: 2
-  spriteExtrude: 0
-  spriteMeshType: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 14
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 0
+  spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -77,8 +120,9 @@ TextureImporter:
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  applyGammaDecoding: 0
   platformSettings:
-  - serializedVersion: 2
+  - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -89,7 +133,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
     buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -100,8 +145,9 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
-    buildTarget: Android
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -111,7 +157,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -122,6 +169,7 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -130,7 +178,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 256
+        y: 276
         width: 64
         height: 64
       alignment: 0
@@ -140,7 +188,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b854a599b76799c4aa0023debff8b4d7
+      spriteID: 02a13a811f4ef4b10800000000000000
+      internalID: 1968043286335789600
       vertices: []
       indices: 
       edges: []
@@ -149,8 +198,8 @@ TextureImporter:
       name: BuildYourWayAssets_1
       rect:
         serializedVersion: 2
-        x: 66
-        y: 256
+        x: 68
+        y: 276
         width: 64
         height: 64
       alignment: 0
@@ -160,7 +209,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dd49470f07027e94cb36a520640d208f
+      spriteID: bca0006391a4b4e20800000000000000
+      internalID: 3335841421138594507
       vertices: []
       indices: 
       edges: []
@@ -169,8 +219,8 @@ TextureImporter:
       name: BuildYourWayAssets_2
       rect:
         serializedVersion: 2
-        x: 132
-        y: 256
+        x: 136
+        y: 276
         width: 64
         height: 64
       alignment: 0
@@ -180,7 +230,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c71ed25f412e20d4da0a95d481b3aa60
+      spriteID: 3f63ce50d779179c0800000000000000
+      internalID: -3931194436491659533
       vertices: []
       indices: 
       edges: []
@@ -189,8 +240,8 @@ TextureImporter:
       name: BuildYourWayAssets_3
       rect:
         serializedVersion: 2
-        x: 198
-        y: 256
+        x: 204
+        y: 276
         width: 64
         height: 64
       alignment: 0
@@ -200,7 +251,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 05b25e3130dedf349b13c6a1f6fcf5ea
+      spriteID: b6dd7413a664018e0800000000000000
+      internalID: -1724801235375628949
       vertices: []
       indices: 
       edges: []
@@ -210,7 +262,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 190
+        y: 208
         width: 64
         height: 64
       alignment: 0
@@ -220,7 +272,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 82a5734bb37d57c4c926140f4823cea6
+      spriteID: f1445f26887771610800000000000000
+      internalID: 1591872420958258207
       vertices: []
       indices: 
       edges: []
@@ -229,8 +282,8 @@ TextureImporter:
       name: BuildYourWayAssets_5
       rect:
         serializedVersion: 2
-        x: 66
-        y: 190
+        x: 68
+        y: 208
         width: 64
         height: 64
       alignment: 0
@@ -240,7 +293,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 111f702943660dd47b25066a46234fa1
+      spriteID: 8b2694e039dc76aa0800000000000000
+      internalID: -6167735133177027912
       vertices: []
       indices: 
       edges: []
@@ -249,8 +303,8 @@ TextureImporter:
       name: BuildYourWayAssets_6
       rect:
         serializedVersion: 2
-        x: 132
-        y: 190
+        x: 136
+        y: 208
         width: 64
         height: 64
       alignment: 0
@@ -260,7 +314,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 927af2121e111ac439762ea43d5ef809
+      spriteID: 3b6dbe77d8ca6e120800000000000000
+      internalID: 2442829571497383603
       vertices: []
       indices: 
       edges: []
@@ -269,8 +324,8 @@ TextureImporter:
       name: BuildYourWayAssets_7
       rect:
         serializedVersion: 2
-        x: 198
-        y: 190
+        x: 204
+        y: 208
         width: 64
         height: 64
       alignment: 0
@@ -280,7 +335,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5dde0a15501a5cb4a913c29ccfeb194d
+      spriteID: ac1c741b42764ae50800000000000000
+      internalID: 6819689143036527050
       vertices: []
       indices: 
       edges: []
@@ -290,7 +346,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 124
+        y: 140
         width: 64
         height: 64
       alignment: 0
@@ -300,7 +356,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7d46d9d929eb99e48ad09907e5d9df78
+      spriteID: 3b99c3ee286354c60800000000000000
+      internalID: 7801701865459849651
       vertices: []
       indices: 
       edges: []
@@ -309,8 +366,8 @@ TextureImporter:
       name: BuildYourWayAssets_9
       rect:
         serializedVersion: 2
-        x: 66
-        y: 124
+        x: 68
+        y: 140
         width: 64
         height: 64
       alignment: 0
@@ -320,7 +377,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 77805802c56dc3245a40af2dbfe8b4ff
+      spriteID: 400fd0b5a3707e330800000000000000
+      internalID: 3739965962771623940
       vertices: []
       indices: 
       edges: []
@@ -329,8 +387,8 @@ TextureImporter:
       name: BuildYourWayAssets_10
       rect:
         serializedVersion: 2
-        x: 132
-        y: 124
+        x: 136
+        y: 140
         width: 64
         height: 64
       alignment: 0
@@ -340,7 +398,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e860f13cf07020046a1b0e787c799166
+      spriteID: dfce6ba1a265e2910800000000000000
+      internalID: 1814482438713699581
       vertices: []
       indices: 
       edges: []
@@ -349,8 +408,8 @@ TextureImporter:
       name: BuildYourWayAssets_11
       rect:
         serializedVersion: 2
-        x: 198
-        y: 124
+        x: 204
+        y: 140
         width: 64
         height: 64
       alignment: 0
@@ -360,7 +419,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fe961c81d6347244ba0a1818d1edcbbd
+      spriteID: 824f043153ac181d0800000000000000
+      internalID: -3350174318481837016
       vertices: []
       indices: 
       edges: []
@@ -370,7 +430,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 58
+        y: 72
         width: 64
         height: 64
       alignment: 0
@@ -380,7 +440,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 34b72319b3a71b147bccd268670022af
+      spriteID: cc1961f3e4970ddc0800000000000000
+      internalID: -3616257123805654580
       vertices: []
       indices: 
       edges: []
@@ -389,8 +450,8 @@ TextureImporter:
       name: BuildYourWayAssets_13
       rect:
         serializedVersion: 2
-        x: 66
-        y: 58
+        x: 68
+        y: 72
         width: 64
         height: 64
       alignment: 0
@@ -400,7 +461,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 61dd2403e6572294190955f928400b8e
+      spriteID: 142c47619b5e2d6c0800000000000000
+      internalID: -4119978125982121407
       vertices: []
       indices: 
       edges: []
@@ -409,8 +471,8 @@ TextureImporter:
       name: BuildYourWayAssets_14
       rect:
         serializedVersion: 2
-        x: 132
-        y: 58
+        x: 136
+        y: 72
         width: 64
         height: 64
       alignment: 0
@@ -420,7 +482,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 136ebf6e9971df747a26e75d2cb37b5b
+      spriteID: a019184a0708999d0800000000000000
+      internalID: -2767039274757811958
       vertices: []
       indices: 
       edges: []
@@ -429,8 +492,8 @@ TextureImporter:
       name: BuildYourWayAssets_15
       rect:
         serializedVersion: 2
-        x: 198
-        y: 58
+        x: 204
+        y: 72
         width: 64
         height: 64
       alignment: 0
@@ -440,7 +503,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2c8211e07708a62419b7b3e63e292007
+      spriteID: b9295cb032f728450800000000000000
+      internalID: 6089569434656412315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BuildYourWayAssets_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 72f3e8debb67639e0800000000000000
+      internalID: -1641994464613482713
       vertices: []
       indices: 
       edges: []
@@ -448,11 +533,13 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 7e427ce92f76dfc409525582ca2a6b98
+    spriteID: ce94841276f279245a3045f70e233b0a
+    internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
+    secondaryTextures: []
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

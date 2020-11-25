@@ -14,6 +14,7 @@ public class GameplayGUI : MonoBehaviour {
 
     public Image playerIndicator;
     public Text winnerText;
+    public GameObject pausedImage;
     public GameObject restartButton;
     public GameObject menuButton;
 
@@ -33,6 +34,7 @@ public class GameplayGUI : MonoBehaviour {
         winnerText.gameObject.SetActive(false);
         restartButton.SetActive(false);
         menuButton.SetActive(false);
+        pausedImage.SetActive(false);
     }
 	
 	// Update is called once per frame
@@ -77,31 +79,19 @@ public class GameplayGUI : MonoBehaviour {
     public void HandlePause()
     {
         boardManager.IsPaused(!boardManager.IsPaused());
-        StartComputerPlayer();
-
         if (boardManager.IsPaused())
         {
             restartButton.SetActive(true);
             menuButton.SetActive(true);
+            pausedImage.SetActive(true);
+            //StopComputerPlayer();
         }
         else
         {
             restartButton.SetActive(false);
             menuButton.SetActive(false);
-        }
-    }
-
-    private void StartComputerPlayer()
-    {
-        List<IPlayer> players = gameManager.GetPlayers();
-
-        foreach (IPlayer player in players)
-        {
-            if (player.GetType() == typeof(ComputerPlayer))
-            {
-                ComputerPlayer cp = (ComputerPlayer)player;
-                cp.StartComputerLogic();
-            }
+            pausedImage.SetActive(false);
+            //StartComputerPlayer();
         }
     }
 

@@ -35,18 +35,45 @@ public class BoardManager : MonoBehaviour {
     private Tile[,] boardArray;
     private List<PlayerHand> handHandlers;
     private int turn = 0;
-    [SerializeField]
-    private int curr_moves = 2;
+    [SerializeField] private int curr_moves = 2;
 	private int curr_player = 1;
     private bool isPaused = false;
+
+    private List<Tile> tileDeck;
+    private int deckSize = 50;
+
+    public IPlayer currentPlayer;
 
     /*
      * Setting up board layout.
      */
     void Awake () {
+        PopulateTileDeck();
         SetupBoard();
         SetupPlayerHands();
         SetupBoardLayout();
+    }
+
+    private void PopulateTileDeck()
+    {
+        tileDeck = new List<Tile>();
+
+        for(int i  = 0; i < deckSize; i++)
+        {
+            // TODO variable for tiledeck position
+            tileDeck.Add(Instantiate(placement, new Vector3(-20,0), Quaternion.identity));
+            if (i < (deckSize/3))
+            {
+
+                tileDeck[i].SetState(Tile.TileState.BLOCK);
+            }
+            else
+            {
+                tileDeck[i].SetState(Tile.TileState.WALK);
+            }
+        }
+        // shuffle here
+        tileDeck.Shuffle<Tile>();
     }
 
     // Sets up empty places on the board.
@@ -80,10 +107,10 @@ public class BoardManager : MonoBehaviour {
         };
 
         // Takes in the hand coords, the tile object, x offset, offset is multiplied by this float, the name of the objects, the player id.
-        handHandlers[0].PopulatePlayerHand(PLAYER_ONE_COORDS, placement, -2, BOARD_SPACING, "PLAYER 1 HAND", 1);
+        handHandlers[0].PopulatePlayerHand(ref tileDeck, PLAYER_ONE_COORDS, placement, -2, 1);
         // Fills the player's hand with random tiles.
         handHandlers[0].FillHand();
-        handHandlers[1].PopulatePlayerHand(PLAYER_TWO_COORDS, placement, 2, BOARD_SPACING, "PLAYER 2 HAND", 2);
+        handHandlers[1].PopulatePlayerHand(ref tileDeck, PLAYER_TWO_COORDS, placement, 2, 2);
         handHandlers[1].FillHand();
     }
 
@@ -113,7 +140,8 @@ public class BoardManager : MonoBehaviour {
     {
         Tile placeTile = Instantiate(placement, new Vector3(x + offset * BOARD_SPACING, 0, z * BOARD_SPACING), Quaternion.identity);
         placeTile.SetState("EMPTY");
-        placeTile.name = name + ": " + z + ", " + x;
+        string newName = string.Format("{0}: {1}, {2}", name, z, x);
+        placeTile.name = newName;
         return placeTile;
     }
 
@@ -127,9 +155,8 @@ public class BoardManager : MonoBehaviour {
         return attacker;
     }
 
-     /*
-     * Public methods called from other classes.
-     */
+
+    #region Public Variables
     // Swap player when the moves get below 1. Then reset the moves to max.
     public void SwitchPlayer()
 	{
@@ -287,9 +314,7 @@ public class BoardManager : MonoBehaviour {
         curr_player = 1;
     }
 
-     /*
-     * Getters, Setters
-     */
+    #region Getters Setters
     public Tile[,] GetBoardArray()
     {
         return boardArray;
@@ -319,5 +344,7 @@ public class BoardManager : MonoBehaviour {
     {
         this.isPaused = isPaused;
     }
+    #endregion
 
 }
+#endregion
