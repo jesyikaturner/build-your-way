@@ -3,18 +3,20 @@ using System.Collections;
 
 public class Tile : MonoBehaviour 
 {
-    public enum TileState
+    public enum TileType
     {
         WALK, BLOCK, BASE1, BASE2, EMPTY
     }
-    public TileState state;
+    public TileType Type {get; private set; }
+    public int Team { get; set; }
+    public Vector2 Position {get; set; }
+    public bool IsSelected { get; private set; }
+    public Attacker Attacker {get; private set; }
 
-	public int xPos, zPos, playerHand = 0, team = 0;
-	public Attacker _attacker;
+	public int xPos, zPos, playerHand = 0;
 	private SpriteRenderer spriteRenderer;
 
     public bool isBreakable = false;
-    public bool isSelected = false;
     public bool isBreaking = false;
 
     public Sprite walk, block, empty, base1, base2;
@@ -22,37 +24,49 @@ public class Tile : MonoBehaviour
     public Sprite b1_walk, b2_walk, b1_block, b2_block;
 
 	// Use this for initialization
-	void Start () {
+	void Start () 
+    {
 		spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        Type = TileType.EMPTY;
+        Team = 0;
+        Position = Vector2.zero;
+        IsSelected = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
         if(!isBreaking)
 		    SetSprite();
-        if (GetAttacker())
+        if (Attacker)
         {
             isBreakable = false;
         }
 	}
 
+    public void SetType(TileType type)
+    {
+        Type = type;
+        if(Type == TileType.BASE1) Team = 1;
+        if(Type == TileType.BASE2) Team = 2;
+    }
+
 	private void SetSprite()
 	{
-        switch (state)
+        switch (Type)
         {
-            case TileState.EMPTY:
+            case TileType.EMPTY:
                 spriteRenderer.sprite = empty;
                 break;
-            case TileState.WALK:
+            case TileType.WALK:
                 spriteRenderer.sprite = walk;
                 break;
-            case TileState.BLOCK:
+            case TileType.BLOCK:
                 spriteRenderer.sprite = block;
                 break;
-            case TileState.BASE1:
+            case TileType.BASE1:
                 spriteRenderer.sprite = base1;
                 break;
-            case TileState.BASE2:
+            case TileType.BASE2:
                 spriteRenderer.sprite = base2;
                 break;
             default:
@@ -60,7 +74,7 @@ public class Tile : MonoBehaviour
                 break;
         }
 
-        if (isSelected)
+        if (IsSelected)
         {
             if (spriteRenderer.sprite == empty)
                 spriteRenderer.sprite = s_empty;
@@ -75,101 +89,35 @@ public class Tile : MonoBehaviour
         }
 	}
 
-    public void SetState(TileState inputState)
-    {
-        state = inputState;
-    }
-
-    public void SetState(string placestate)
-    {
-        switch (placestate)
-        {
-            case "WALK":
-                state = TileState.WALK;
-                break;
-            case "BLOCK":
-                state = TileState.BLOCK;
-                break;
-            case "EMPTY":
-                state = TileState.EMPTY;
-                break;
-            case "BASE1":
-                state = TileState.BASE1;
-                break;
-            case "BASE2":
-                state = TileState.BASE2;
-                break;
-            default:
-                Debug.LogErrorFormat("{0} cannot be set as a PlaceState!",placestate);
-                break;
-        }
-    }
-
-    public bool GetState(string placestate)
-    {
-        switch (placestate)
-        {
-            case "WALK":
-                if(state == TileState.WALK)
-                    return true;
-                break;
-            case "BLOCK":
-                if (state == TileState.BLOCK)
-                    return true;
-                break;
-            case "EMPTY":
-                if (state == TileState.EMPTY)
-                    return true;
-                break;
-            case "BASE1":
-                if (state == TileState.BASE1)
-                    return true;
-                break;
-            case "BASE2":
-                if (state == TileState.BASE2)
-                    return true;
-                break;
-            default:
-                Debug.LogErrorFormat("{0} isn't a PlaceState!", placestate);
-                break;
-        }
-        return false;
-    }
-
-    public TileState GetState()
-    {
-        return state;
-    }
-
     public void ToggleSelectable()
     {
-        if (!isSelected)
-            isSelected = true;
-        else
-            isSelected = false;
+        IsSelected = !IsSelected;
     }
+
+    // public TileInfo GetTileInfo()
+    // {
+    //     return _info;
+    // }
 
 	public bool SetAttacker(Attacker attacker)
 	{
-        if(attacker == null)
+        // if tile has attacker return false
+        if (Attacker)
         {
-            _attacker = null;
+            Debug.LogError("Cannot set attacker.");
+            return false;
+        }
+
+        // set the tile attacker to null if null is entered
+        if(!attacker)
+        {
+            Attacker = null;
             return true;
         }
 
-		if(_attacker)
-		{
-			Debug.LogError("Cannot set attacker.");
-			return false;
-		}
-
-		_attacker = attacker;
+        // set the tile attacker
+		Attacker = attacker;
 		return true;
-	}
-
-	public Attacker GetAttacker()
-	{
-		return _attacker;
 	}
 
     public int BreakAnimation(float timer)

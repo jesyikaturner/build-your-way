@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /*
  * Very basic random AI Computer Player.
  */ 
-public class ComputerPlayer : MonoBehaviour, IPlayer {
+public class ComputerPlayer : MonoBehaviour, IController {
 
     // Public Variables for the Inspector
     [SerializeField] private Tile selected;
@@ -22,9 +22,11 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
     private int playerID;
     private int invalidMoveCounter;
 
+    public bool isActive = false;
+
     private float timer = 0f;
 
-    public void SetupPlayerControls(SoundManager soundManager, BoardManager boardManager, int playerID)
+    public void SetupControls(SoundManager soundManager, BoardManager boardManager, int playerID)
     {
         this.boardManager = boardManager;
         this.soundManager = soundManager;
@@ -33,22 +35,27 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
         possibleMoves = new List<Tile>();
         goalTiles = new List<Tile>();
 
-        compHand = boardManager.GetHands()[playerID-1];
+        // compHand = boardManager.GetHands()[playerID-1];
 
-        SetupBaseTiles();
+        // SetupBaseTiles();
+    }
+        
+    public void ToggleActive()
+    {
+        isActive = !isActive;
     }
 
     // Getting the tiles that the attackers need to move to.
     private void SetupBaseTiles()
     {
-        foreach (Tile cell in boardManager.GetBoardArray())
-        {
-            if (playerID == 2 && cell.GetState("BASE1"))
-                goalTiles.Add(cell);
+        // foreach (Tile cell in boardManager.GetBoardArray())
+        // {
+        //     if (playerID == 2 && cell.GetTileInfo().CheckState(TileInfo.TileState.BASE1))
+        //         goalTiles.Add(cell);
 
-            if (playerID == 1 && cell.GetState("BASE2"))
-                goalTiles.Add(cell);
-        }
+        //     if (playerID == 1 && cell.GetTileInfo().CheckState(TileInfo.TileState.BASE2))
+        //         goalTiles.Add(cell);
+        // }
     }
 
     private bool CheckPossibleMoves()
@@ -101,64 +108,64 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
      */
     public bool MoveTile(Tile place)
     {
-        Debug.LogFormat("{0}: Cleared possibleMoves array", playerID);
-        possibleMoves.Clear();
+        // Debug.LogFormat("{0}: Cleared possibleMoves array", playerID);
+        // possibleMoves.Clear();
 
-        if (invalidMoveCounter > MAX_INVALID_MOVES)
-        {
-            Debug.LogFormat("{0}: Exiting, too many invalid moves. Counter at {1}", playerID, invalidMoveCounter);
-            return false;
-        }
+        // if (invalidMoveCounter > MAX_INVALID_MOVES)
+        // {
+        //     Debug.LogFormat("{0}: Exiting, too many invalid moves. Counter at {1}", playerID, invalidMoveCounter);
+        //     return false;
+        // }
 
-        Debug.LogFormat("{0}: Showing possible moves.", playerID);
-        boardManager.PossibleTilePlacements();
+        // Debug.LogFormat("{0}: Showing possible moves.", playerID);
+        // boardManager.PossibleTilePlacements(2);
 
-        Debug.LogFormat("{0}: Adding selected tiles to possibleMoves array.", playerID);
-        foreach (Tile cell in boardManager.GetBoardArray())
-        {
-            if (cell.isSelected)
-            {
-                possibleMoves.Add(cell);
-            }
-        }
-        Debug.LogFormat("{0}: Selected tiles all added.", playerID);
-        if (!CheckPossibleMoves())
-        {
-            Debug.LogFormat("{0}: Exiting out of MoveTile(), there's no possible moves", playerID);
-            return false;
-        }
+        // Debug.LogFormat("{0}: Adding selected tiles to possibleMoves array.", playerID);
+        // foreach (Tile cell in boardManager.GetBoardArray())
+        // {
+        //     if (cell.isSelected)
+        //     {
+        //         possibleMoves.Add(cell);
+        //     }
+        // }
+        // Debug.LogFormat("{0}: Selected tiles all added.", playerID);
+        // if (!CheckPossibleMoves())
+        // {
+        //     Debug.LogFormat("{0}: Exiting out of MoveTile(), there's no possible moves", playerID);
+        //     return false;
+        // }
 
-        Debug.LogFormat("{0}: Selected random card from own hand.", playerID);
-        selected = compHand.GetPlayerHand()[Random.Range(0, compHand.GetPlayerHand().Length)];
+        // Debug.LogFormat("{0}: Selected random card from own hand.", playerID);
+        // selected = compHand.GetPlayerHand()[Random.Range(0, compHand.GetPlayerHand().Length)];
 
-        Debug.LogFormat("{0}: Selected closest empty place to goal tiles to place new tile.", playerID);
-        Tile selectedMove = GetClosestPosition(possibleMoves);
+        // Debug.LogFormat("{0}: Selected closest empty place to goal tiles to place new tile.", playerID);
+        // Tile selectedMove = GetClosestPosition(possibleMoves);
 
-        if (selectedMove)
-        {
-            Debug.LogFormat("{0}: Placed hand tile.", playerID);
-            selectedMove.SetState(selected.GetState());
-        }    
-        else
-        {
-            Debug.LogErrorFormat("{0}: A null tile is being returned from selecting closest tile. Defaulting to random selection.", playerID);
-            possibleMoves[Random.Range(0, possibleMoves.Count)].SetState(selected.GetState());
-        }
+        // if (selectedMove)
+        // {
+        //     Debug.LogFormat("{0}: Placed hand tile.", playerID);
+        //     selectedMove.GetTileInfo().SetState(selected.GetTileInfo().GetState());
+        // }    
+        // else
+        // {
+        //     Debug.LogErrorFormat("{0}: A null tile is being returned from selecting closest tile. Defaulting to random selection.", playerID);
+        //     possibleMoves[Random.Range(0, possibleMoves.Count)].GetTileInfo().SetState(selected.GetTileInfo().GetState());
+        // }
 
-        timer = moveDelay;
+        // timer = moveDelay;
 
-        while(timer > 0f)
-        {
-            timer -= Time.deltaTime;
-        }
+        // while(timer > 0f)
+        // {
+        //     timer -= Time.deltaTime;
+        // }
 
-        soundManager.PlaySound("SELECT");
+        // soundManager.PlaySound("SELECT");
 
-        boardManager.SubtractMove(1);
+        // boardManager.SubtractMove(1);
 
-        selected.SetState("EMPTY");
-        selected = null;
-        boardManager.ClearBoard();
+        // selected.GetTileInfo().SetState(TileInfo.TileState.EMPTY);
+        // selected = null;
+        // boardManager.ClearBoard();
         return true;
     }
 
@@ -168,18 +175,18 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
     private Tile GetClosestPosition(List<Tile> possiblePlaces)
     {
         Tile selectedPlace = null;
-        float distance = float.MaxValue;
-        foreach (Tile cell in goalTiles)
-        {
-            foreach(Tile place in possiblePlaces)
-            {
-                if(Vector3.Distance(cell.transform.position,place.transform.position) < distance)
-                {
-                    selectedPlace = place;
-                    distance = Vector3.Distance(cell.transform.position, place.transform.position);
-                }
-            }
-        }
+        // float distance = float.MaxValue;
+        // foreach (Tile cell in goalTiles)
+        // {
+        //     foreach(Tile place in possiblePlaces)
+        //     {
+        //         if(Vector3.Distance(cell.transform.position,place.transform.position) < distance)
+        //         {
+        //             selectedPlace = place;
+        //             distance = Vector3.Distance(cell.transform.position, place.transform.position);
+        //         }
+        //     }
+        // }
         return selectedPlace;
     }
 
@@ -189,103 +196,103 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
      */ 
     public bool MoveAttacker(Tile place)
     {
-        Debug.LogFormat("{0}: Cleared possibleMoves array", playerID);
-        possibleMoves.Clear();
+        // Debug.LogFormat("{0}: Cleared possibleMoves array", playerID);
+        // possibleMoves.Clear();
 
-        // grabs all the attacker pieces that aren't on the goal tiles
-        Debug.LogFormat("{0}: Getting all attacker pieces that aren't on goal tiles.", playerID);
-        foreach (Tile cell in boardManager.GetBoardArray())
-        {
-            if(cell.GetAttacker() && cell.GetAttacker().Team == playerID)
-            {
-                // make sure its not already on the goal tiles.
-                if(playerID == 2 && !cell.GetState("BASE1"))
-                    possibleMoves.Add(cell);
+        // // grabs all the attacker pieces that aren't on the goal tiles
+        // Debug.LogFormat("{0}: Getting all attacker pieces that aren't on goal tiles.", playerID);
+        // foreach (Tile cell in boardManager.GetBoardArray())
+        // {
+        //     if(cell.GetAttacker() && cell.GetAttacker().Team == playerID)
+        //     {
+        //         // make sure its not already on the goal tiles.
+        //         if(playerID == 2 && !cell.GetTileInfo().CheckState(TileInfo.TileState.BASE1))
+        //             possibleMoves.Add(cell);
 
-                if (playerID == 1 && !cell.GetState("BASE2"))
-                    possibleMoves.Add(cell);
-            }
-        }
-        Debug.LogFormat("{0}: All attackers gathered.", playerID);
+        //         if (playerID == 1 && !cell.GetTileInfo().CheckState(TileInfo.TileState.BASE2))
+        //             possibleMoves.Add(cell);
+        //     }
+        // }
+        // Debug.LogFormat("{0}: All attackers gathered.", playerID);
 
-        // if there's no possible moves, exit out of the method.
-        if (possibleMoves.Count == 0)
-            return false;
+        // // if there's no possible moves, exit out of the method.
+        // if (possibleMoves.Count == 0)
+        //     return false;
 
-        Tile selectedMove = null;
+        // Tile selectedMove = null;
 
-        foreach (Tile cell in possibleMoves)
-        {
-            if (!cell.GetAttacker().CheckHistory(possibleMoves))
-            {
-                selectedMove = GetClosestPosition(possibleMoves);
-                break;
-            }
-        }
+        // foreach (Tile cell in possibleMoves)
+        // {
+        //     if (!cell.GetAttacker().CheckHistory(possibleMoves))
+        //     {
+        //         selectedMove = GetClosestPosition(possibleMoves);
+        //         break;
+        //     }
+        // }
 
-        if(selectedMove)
-            selected = selectedMove;
-        else
-            selected = possibleMoves[Random.Range(0, possibleMoves.Count)];
-
-
-        // checks to see if any of the possible moves are already in the history
-        possibleMoves.Clear();
-        boardManager.PossibleAttackerMoves(selected);
-
-        foreach (Tile cell in boardManager.GetBoardArray())
-        {
-            if(cell.isSelected)
-                possibleMoves.Add(cell);
-
-        }
-
-        if (possibleMoves.Count == 0)
-            return false;
+        // if(selectedMove)
+        //     selected = selectedMove;
+        // else
+        //     selected = possibleMoves[Random.Range(0, possibleMoves.Count)];
 
 
-        selectedMove = GetClosestPosition(possibleMoves);
-        if (!selectedMove || selected.GetAttacker().CheckHistory(selectedMove))
-        {
-            if(invalidMoveCounter > 1)
-            {
-                selectedMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
-                invalidMoveCounter++;
-            }
-            else
-            {
-                invalidMoveCounter++;
-                boardManager.ClearBoard();
-                return false;
-            }
-        }
+        // // checks to see if any of the possible moves are already in the history
+        // possibleMoves.Clear();
+        // boardManager.PossibleAttackerMoves(selected);
 
-        if (invalidMoveCounter > MAX_INVALID_MOVES)
-        {
-            foreach (Tile cell in possibleMoves)
-            {
-                selected.GetAttacker().ClearHistory(cell);
-            }
-            invalidMoveCounter = 0;
-        }
+        // foreach (Tile cell in boardManager.GetBoardArray())
+        // {
+        //     if(cell.isSelected)
+        //         possibleMoves.Add(cell);
 
-        timer = moveDelay;
+        // }
 
-        while (timer > 0f)
-        {
-            timer -= Time.deltaTime;
-        }
+        // if (possibleMoves.Count == 0)
+        //     return false;
 
-        selected.GetAttacker().ToggleSelect();
-        boardManager.SetAttacker(selected, selectedMove);
-        boardManager.ClearBoard();
-        UpdateGoalTiles(selectedMove);
-        boardManager.SubtractMove(1);
 
-        // PLAY SOUND
-        soundManager.PlaySound("SELECT");
+        // selectedMove = GetClosestPosition(possibleMoves);
+        // if (!selectedMove || selected.GetAttacker().CheckHistory(selectedMove))
+        // {
+        //     if(invalidMoveCounter > 1)
+        //     {
+        //         selectedMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
+        //         invalidMoveCounter++;
+        //     }
+        //     else
+        //     {
+        //         invalidMoveCounter++;
+        //         boardManager.ClearBoard();
+        //         return false;
+        //     }
+        // }
 
-        selected = null;
+        // if (invalidMoveCounter > MAX_INVALID_MOVES)
+        // {
+        //     foreach (Tile cell in possibleMoves)
+        //     {
+        //         selected.GetAttacker().ClearHistory(cell);
+        //     }
+        //     invalidMoveCounter = 0;
+        // }
+
+        // timer = moveDelay;
+
+        // while (timer > 0f)
+        // {
+        //     timer -= Time.deltaTime;
+        // }
+
+        // selected.GetAttacker().ToggleSelect();
+        // boardManager.SetAttacker(selected, selectedMove);
+        // boardManager.ClearBoard();
+        // UpdateGoalTiles(selectedMove);
+        // boardManager.SubtractMove(1);
+
+        // // PLAY SOUND
+        // soundManager.PlaySound("SELECT");
+
+        // selected = null;
         return true;
     }
 
@@ -297,84 +304,84 @@ public class ComputerPlayer : MonoBehaviour, IPlayer {
 
     public bool DestroyTile(Tile place)
     {
-        Debug.LogFormat("{0}: Cleared possibleMoves array", playerID);
-        possibleMoves.Clear();
+        // Debug.LogFormat("{0}: Cleared possibleMoves array", playerID);
+        // possibleMoves.Clear();
 
-        Debug.LogFormat("{0}: Showing breakable tiles.", playerID);
-        boardManager.ShowBreakableTiles();
+        // Debug.LogFormat("{0}: Showing breakable tiles.", playerID);
+        // boardManager.ShowBreakableTiles();
 
-        Debug.LogFormat("{0}: Adding all breakable tiles to possibleMoves array.", playerID);
-        foreach (Tile cell in boardManager.GetBoardArray())
-        {
-            if (cell.isBreakable)
-            {
-                possibleMoves.Add(cell);
-            }
-        }
-        Debug.LogFormat("{0}: All breakble tiles added.", playerID);
+        // Debug.LogFormat("{0}: Adding all breakable tiles to possibleMoves array.", playerID);
+        // foreach (Tile cell in boardManager.GetBoardArray())
+        // {
+        //     if (cell.isBreakable)
+        //     {
+        //         possibleMoves.Add(cell);
+        //     }
+        // }
+        // Debug.LogFormat("{0}: All breakble tiles added.", playerID);
 
-        if (possibleMoves.Count == 0)
-        {
-            Debug.LogFormat("{0}: Exiting out of DestroyTile(), no valid breakable tiles.", playerID);
-            boardManager.ClearBoard();
-            return false;
-        }
+        // if (possibleMoves.Count == 0)
+        // {
+        //     Debug.LogFormat("{0}: Exiting out of DestroyTile(), no valid breakable tiles.", playerID);
+        //     boardManager.ClearBoard();
+        //     return false;
+        // }
 
-        // move delay
-        timer = moveDelay;
+        // // move delay
+        // timer = moveDelay;
 
-        while (timer > 0f)
-        {
-            timer -= Time.deltaTime;
-        }
+        // while (timer > 0f)
+        // {
+        //     timer -= Time.deltaTime;
+        // }
 
-        Tile selectedMove = GetClosestPosition(possibleMoves);
-        if (!selectedMove)
-            selectedMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
+        // Tile selectedMove = GetClosestPosition(possibleMoves);
+        // if (!selectedMove)
+        //     selectedMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
 
 
-        if (selectedMove.GetState("BLOCK"))
-        {
-            if (boardManager.SubtractMove(2))
-            {
-                selectedMove.SetState("EMPTY");
-                soundManager.PlaySound("SELECT");
-            }
-            else
-            {
-                return false;
-            }
-        }
+        // if (selectedMove.GetTileInfo().CheckState(TileInfo.TileState.BLOCK))
+        // {
+        //     if (boardManager.SubtractMove(2))
+        //     {
+        //         selectedMove.GetTileInfo().SetState(TileInfo.TileState.EMPTY);
+        //         soundManager.PlaySound("SELECT");
+        //     }
+        //     else
+        //     {
+        //         return false;
+        //     }
+        // }
 
-        if (invalidMoveCounter > MAX_INVALID_MOVES)
-        {
-            if (selectedMove.GetState("WALK"))
-            {
-                if (boardManager.SubtractMove(1))
-                {
-                    Debug.LogFormat("{0}: Destroyed walk tile. Set counter to 0", playerID);
-                    selectedMove.SetState("EMPTY");
-                    soundManager.PlaySound("SELECT");
-                    invalidMoveCounter = 0;
-                }
-                else
-                {
-                    Debug.LogErrorFormat("{0}: Exiting out of DestroyTile(), unable to make this move.", playerID);
-                    Debug.Break();
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            if (selectedMove.GetState("WALK"))
-            {
-                Debug.LogFormat("{0}: Exiting out of DestroyTile(), selected walk tile. No need to break.", playerID);
-                return false;
-            }
-        }
+        // if (invalidMoveCounter > MAX_INVALID_MOVES)
+        // {
+        //     if (selectedMove.GetTileInfo().CheckState(TileInfo.TileState.WALK))
+        //     {
+        //         if (boardManager.SubtractMove(1))
+        //         {
+        //             Debug.LogFormat("{0}: Destroyed walk tile. Set counter to 0", playerID);
+        //             selectedMove.GetTileInfo().SetState(TileInfo.TileState.EMPTY);
+        //             soundManager.PlaySound("SELECT");
+        //             invalidMoveCounter = 0;
+        //         }
+        //         else
+        //         {
+        //             Debug.LogErrorFormat("{0}: Exiting out of DestroyTile(), unable to make this move.", playerID);
+        //             Debug.Break();
+        //             return false;
+        //         }
+        //     }
+        // }
+        // else
+        // {
+        //     if (selectedMove.GetTileInfo().CheckState(TileInfo.TileState.WALK))
+        //     {
+        //         Debug.LogFormat("{0}: Exiting out of DestroyTile(), selected walk tile. No need to break.", playerID);
+        //         return false;
+        //     }
+        // }
 
-        boardManager.ClearBoard();
+        // boardManager.ClearBoard();
         return true;
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -17,20 +18,6 @@ public class BoardManager : MonoBehaviour {
     private readonly int[,] PLAYER_ONE_COORDS = { { 0, 0 }, { 0, 1 }, { 0, 2 } };
     private readonly int[,] PLAYER_TWO_COORDS = { { 5, 3 }, { 5, 4 }, { 5, 5 } };
 
-    // TileInfo(string name, int team, int z, int x) 
-    private readonly TileInfo[] STANDARD_BOARD = {
-        new TileInfo("BASE1", 1, 0, 0),
-        new TileInfo("BASE1", 1, 1, 0),
-        new TileInfo("BASE1", 1, 2, 2),
-        new TileInfo("BASE2", 2, 3, 3),
-        new TileInfo("BASE2", 2, 4, 5),
-        new TileInfo("BASE2", 2, 5, 5),
-        new TileInfo("BLOCK", 0, 4, 1),
-        new TileInfo("BLOCK", 0, 3, 2),
-        new TileInfo("BLOCK", 0, 2, 3),
-        new TileInfo("BLOCK", 0, 1, 4)
-    };
-
     // Private Variables
     private Tile[,] boardArray;
     private List<PlayerHand> handHandlers;
@@ -42,17 +29,108 @@ public class BoardManager : MonoBehaviour {
     private List<Tile> tileDeck;
     private int deckSize = 50;
 
-    public IPlayer currentPlayer;
+    public IController currentPlayer;
+
+
+    // Used to read boardlayout txt files
+    private readonly FileHandler _fileHandler = FileHandler.Instance;
+    public List<string> boardString = new();
 
     /*
      * Setting up board layout.
      */
-    void Awake () {
+     
+    void Start()
+    {
         PopulateTileDeck();
         SetupBoard();
         SetupPlayerHands();
-        SetupBoardLayout();
     }
+
+#region Board Setup
+    // Board setup from text file
+    // b - BLOCK
+    // e - EMPTY
+    // 1 - BASE1
+    // 2 - BASE2
+    // w - WALK
+    private void SetupBoard()
+    {
+        boardString = _fileHandler.ReadTextFile("Scripts/Data/boardlayout.txt");
+        boardArray = new Tile[BOARD_WIDTH, BOARD_HEIGHT];
+
+        for(int row = 0; row < boardString.Count; row++)
+        {
+            string[] tempRow = boardString[row].Split(new string[]{","}, StringSplitOptions.None);
+
+            for (int col = 0; col < BOARD_WIDTH; col++)
+            {
+                Tile tile = null;
+
+                switch(tempRow[col])
+                {
+                    case "e":
+                        //Takes in x value, z value, the offset and the name of the object
+                        tile = CreatePlaceTile(col, row, 0, "Place");
+                        break;
+                    case "b":
+                        tile = CreatePlaceTile(col, row, 0, "Block");
+                        // Setting the object's state to block
+                        tile.SetType(Tile.TileType.BLOCK);
+                        break;
+                    case "w":
+                        tile = CreatePlaceTile(col, row, 0, "Walk");
+                        tile.SetType(Tile.TileType.WALK);
+                        break;
+                    case "1":
+                        tile = CreatePlaceTile(col, row, 0, "Base 1");
+                        tile.SetType(Tile.TileType.BASE1);
+                        // Create attacker for base tile
+                        tile.SetAttacker(CreateAttacker(tile.Team, new Vector2(col, row), "Player 1 Attacker", tile));
+                        break;
+                    case "2":
+                        tile = CreatePlaceTile(col, row, 0, "Base 2");
+                        tile.SetType(Tile.TileType.BASE2);
+                        tile.SetAttacker(CreateAttacker(tile.Team, new Vector2(col, row), "Player 2 Attacker", tile));
+                        break;
+                    default:
+                        Debug.Log(tempRow[col]);
+                        break;
+                }
+                // if a tile doesn't get created, exit out
+                if(!tile)
+                    return;
+                
+                // Setting the object's parent to a child of this script's gameobject.
+                tile.transform.parent = transform.GetChild(0).transform;
+                tile.Position = new Vector2(col, row);
+                boardArray[col, row] = tile;
+            }
+        }
+    }
+#endregion
+
+#region Tile Creation Helpers
+    private Tile CreatePlaceTile(int x, int z, int offset, string name)
+    {
+        Tile placeTile = Instantiate(placement, new Vector3(x + offset * BOARD_SPACING, 0, z * BOARD_SPACING), Quaternion.identity);
+        // placeTile.xPos = x;
+        // placeTile.zPos = z;
+        string newName = string.Format("{0}: {1}, {2}", name, z, x);
+        placeTile.name = newName;
+        return placeTile;
+    }
+
+    // Creates an attacker and assigns a team to it
+    private Attacker CreateAttacker(int team, Vector2 position, string name, Tile originTile)
+    {
+        Attacker attacker = Instantiate(playerAttacker, new Vector3(position[0], PIECE_OFFSET, position[1]), Quaternion.identity);
+        attacker.Team = team;
+        attacker.name = name;
+        attacker.UpdateHistory(originTile);
+        return attacker;
+    }
+#endregion
 
     private void PopulateTileDeck()
     {
@@ -65,36 +143,18 @@ public class BoardManager : MonoBehaviour {
             if (i < (deckSize/3))
             {
 
-                tileDeck[i].SetState(Tile.TileState.BLOCK);
+                tileDeck[i].SetType(Tile.TileType.BLOCK);
             }
             else
             {
-                tileDeck[i].SetState(Tile.TileState.WALK);
+                tileDeck[i].SetType(Tile.TileType.WALK);
             }
         }
         // shuffle here
         tileDeck.Shuffle<Tile>();
     }
 
-    // Sets up empty places on the board.
-    private void SetupBoard()
-    {
-        boardArray = new Tile[BOARD_WIDTH, BOARD_HEIGHT];
 
-        for (int x = 0; x < BOARD_HEIGHT; x++)
-        {
-            for (int z = 0; z < BOARD_WIDTH; z++)
-            {
-                // Takes in x value, z value, the offset and the name of the object
-                Tile placeTile = CreatePlaceTile(x, z, 0, "Place");
-                // Setting the object's parent to a child of this script's gameobject.
-                placeTile.transform.parent = transform.GetChild(0).transform;
-                placeTile.xPos = x;
-                placeTile.zPos = z;
-                boardArray[x, z] = placeTile;
-            }
-        }
-    }
 
     // Sets up the positions of the players hands.
     private void SetupPlayerHands()
@@ -114,70 +174,14 @@ public class BoardManager : MonoBehaviour {
         handHandlers[1].FillHand();
     }
 
-    // Applies a preset layout to the board
-    private void SetupBoardLayout()
-    {
-        foreach(Tile cell in boardArray)
-        {
-            foreach(TileInfo tile in STANDARD_BOARD)
-            {
-                if(cell.zPos == tile.GetZPos() && cell.xPos == tile.GetXPos())
-                {
-                    cell.SetState(tile.GetState());
-                    cell.team = tile.GetTeam();
-
-                    if (cell.GetState("BASE1"))
-                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 1 Attacker", cell));
-                    if (cell.GetState("BASE2"))
-                        cell.SetAttacker(CreateAttacker(cell.team, cell.xPos, cell.zPos, "Player 2 Attacker", cell));
-                }
-            }
-        }
-    }
-
-
-    private Tile CreatePlaceTile(int x, int z, int offset, string name)
-    {
-        Tile placeTile = Instantiate(placement, new Vector3(x + offset * BOARD_SPACING, 0, z * BOARD_SPACING), Quaternion.identity);
-        placeTile.SetState("EMPTY");
-        string newName = string.Format("{0}: {1}, {2}", name, z, x);
-        placeTile.name = newName;
-        return placeTile;
-    }
-
-    // Creates an attacker and assigns a team to it
-    private Attacker CreateAttacker(int team, int x, int z, string name, Tile originTile)
-    {
-        Attacker attacker = Instantiate(playerAttacker, new Vector3(x, PIECE_OFFSET, z), Quaternion.identity);
-        attacker.Team = team;
-        attacker.name = name;
-        attacker.UpdateHistory(originTile);
-        return attacker;
-    }
-
-
     #region Public Variables
-    // Swap player when the moves get below 1. Then reset the moves to max.
-    public void SwitchPlayer()
-	{
-		if(curr_moves < 1)
-		{
-			turn++;
-			if(turn % 2 == 0)
-				curr_player = 1;
-			else
-				curr_player = 2;
-			curr_moves = max_moves;
-		}
-	}
-
     // Move Attacker from origin tile to target tile.
     public void SetAttacker(Tile origin, Tile target)
     {
-        target.SetAttacker(origin.GetAttacker());
-        origin.GetAttacker().UpdateHistory(target);
-        origin.GetAttacker().transform.position = new Vector3(target.transform.position.x, PIECE_OFFSET, target.transform.position.z);
-        origin.GetAttacker().ToggleSelect();
+        target.SetAttacker(origin.Attacker);
+        origin.Attacker.UpdateHistory(target);
+        origin.Attacker.transform.position = new Vector3(target.transform.position.x, PIECE_OFFSET, target.transform.position.z);
+        origin.Attacker.ToggleSelect();
         origin.SetAttacker(null);
     }
     
@@ -198,118 +202,127 @@ public class BoardManager : MonoBehaviour {
     {
         bool canMove = false;
         
-        foreach(Tile cell in boardArray)
-        {
-            if(Mathf.Abs(cell.xPos - place.xPos) + Mathf.Abs(cell.zPos - place.zPos) <= 1)
-            {
-                if((cell.GetState("WALK") || cell.GetState("BASE1") || cell.GetState("BASE2")) && !cell.GetAttacker() && !cell.isSelected)
-                {
-                    cell.ToggleSelectable();
-                    canMove = true;
-                }
-            }
-        }
+        // foreach(Tile cell in boardArray)
+        // {
+        //     TileInfo cellInfo = cell.GetTileInfo();
+        //     if(Mathf.Abs(cellInfo.GetPosition()[0] - place.GetTileInfo().GetPosition()[0]) + Mathf.Abs(cellInfo.GetPosition()[1] - place.GetTileInfo().GetPosition()[1]) <= 1)
+        //     {
+        //         if((cellInfo.CheckState(TileInfo.TileState.WALK) || cellInfo.CheckState(TileInfo.TileState.BASE1) ||
+        //             cellInfo.CheckState(TileInfo.TileState.BASE2)) && !cell.GetAttacker() && !cellInfo.TileIsSelected())
+        //         {
+        //             cellInfo.ToggleSelectable();
+        //             canMove = true;
+        //         }
+        //     }
+        // }
         return canMove;
     }
 
     // Clears the board, toggles off all selected tiles and sets breakable tiles to non-breakable.
     public void ClearBoard()
     {
-        foreach(Tile place in boardArray){
-            if (place.isSelected)
-                place.ToggleSelectable();
-            if (place.isBreakable)
-                place.isBreakable = false;
-        }
+        // foreach(Tile place in boardArray)
+        // {
+        //     TileInfo placeInfo = place.GetTileInfo();
+        //     if (placeInfo.TileIsSelected())
+        //         placeInfo.ToggleSelectable();
+        //     if (place.isBreakable)
+        //         place.isBreakable = false;
+        // }
     }
 
     // Makes cells around the attackers selectable for a tile to be placed on them.
-    public void PossibleTilePlacements()
+    public void PossibleTilePlacements(int playerID)
     {
-        foreach(Tile cell in boardArray)
-        {
-            if(cell.GetAttacker() && cell.GetAttacker().Team == curr_player)
-            {
-                Tile currCell = cell;
-                foreach(Tile adjacentCell in boardArray)
-                {
-                    if (adjacentCell.GetState("EMPTY"))
-                    {
-                        if (adjacentCell.xPos > -1 && adjacentCell.xPos < BOARD_WIDTH)
-                        {
-                            if (adjacentCell.xPos == currCell.xPos + 1 && adjacentCell.zPos == currCell.zPos && !adjacentCell.isSelected)
-                                adjacentCell.ToggleSelectable();
+        // Debug.Log("Hello!");
+        // foreach(Tile cell in boardArray)
+        // {
+        //     if(cell.GetAttacker() && cell.GetAttacker().Team == playerID)
+        //     {
+        //         Debug.Log(playerID);
+        //         TileInfo currCell = cell.GetTileInfo();
 
-                            if (adjacentCell.xPos == currCell.xPos - 1 && adjacentCell.zPos == currCell.zPos && !adjacentCell.isSelected)
-                                adjacentCell.ToggleSelectable();
-                        }
+        //         foreach(Tile aCell in boardArray)
+        //         {
+        //             TileInfo adjacentCell = aCell.GetTileInfo();
 
-                        if (adjacentCell.zPos > -1 && adjacentCell.zPos < BOARD_HEIGHT)
-                        {
-                            if (adjacentCell.zPos == currCell.zPos + 1 && adjacentCell.xPos == currCell.xPos && !adjacentCell.isSelected)
-                                adjacentCell.ToggleSelectable();
+        //             if (adjacentCell.CheckState(TileInfo.TileState.EMPTY))
+        //             {
+        //                 if (adjacentCell.GetPosition()[0] > -1 && adjacentCell.GetPosition()[0] < BOARD_WIDTH)
+        //                 {
+        //                     if (adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] + 1 && adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] && !adjacentCell.TileIsSelected())
+        //                         adjacentCell.ToggleSelectable();
 
-                            if (adjacentCell.zPos == currCell.zPos - 1 && adjacentCell.xPos == currCell.xPos && !adjacentCell.isSelected)
-                                adjacentCell.ToggleSelectable();
-                        }
-                    }
-                }
-            }
-        }
+        //                     if (adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] - 1 && adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] && !adjacentCell.TileIsSelected())
+        //                         adjacentCell.ToggleSelectable();
+        //                 }
+
+        //                 if (adjacentCell.GetPosition()[1] > -1 && adjacentCell.GetPosition()[1] < BOARD_HEIGHT)
+        //                 {
+        //                     if (adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] + 1 && adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] && !adjacentCell.TileIsSelected())
+        //                         adjacentCell.ToggleSelectable();
+
+        //                     if (adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] - 1 && adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] && !adjacentCell.TileIsSelected())
+        //                         adjacentCell.ToggleSelectable();
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     public void ShowBreakableTiles()
     {
-        for (int x = 0; x < BOARD_WIDTH; x++)
-        {
-            for (int z = 0; z < BOARD_HEIGHT; z++)
-            {
-                if (boardArray[x, z].GetAttacker())
-                {
-                    if (curr_player == boardArray[x, z].GetAttacker().Team)
-                    {
-                        if (x < BOARD_WIDTH - 1)
-                        {
-                            if (boardArray[x + 1, z].GetState("WALK") || boardArray[x + 1, z].GetState("BLOCK"))
-                                boardArray[x + 1, z].isBreakable = true;
-                        }
-                        if (x > 0)
-                        {
-                            if (boardArray[x - 1, z].GetState("WALK") || boardArray[x - 1, z].GetState("BLOCK"))
-                                boardArray[x - 1, z].isBreakable = true; 
-                        }
-                        if (z < BOARD_HEIGHT - 1)
-                        {
-                            if (boardArray[x, z + 1].GetState("WALK") || boardArray[x, z + 1].GetState("BLOCK"))
-                                boardArray[x, z + 1].isBreakable = true;
-                        }
-                        if (z > 0)
-                        {
-                            if (boardArray[x, z - 1].GetState("WALK") || boardArray[x, z - 1].GetState("BLOCK"))
-                                boardArray[x, z - 1].isBreakable = true;
-                        }
-                    }
-                }
-            }
-        }
+        // for (int x = 0; x < BOARD_WIDTH; x++)
+        // {
+        //     for (int z = 0; z < BOARD_HEIGHT; z++)
+        //     {
+        //         if (boardArray[x, z].GetAttacker())
+        //         {
+        //             if (curr_player == boardArray[x, z].GetAttacker().Team)
+        //             {
+        //                 if (x < BOARD_WIDTH - 1)
+        //                 {
+        //                     if (boardArray[x + 1, z].GetTileInfo().CheckState(TileInfo.TileState.WALK) || boardArray[x + 1, z].GetTileInfo().CheckState(TileInfo.TileState.BLOCK))
+        //                         boardArray[x + 1, z].isBreakable = true;
+        //                 }
+        //                 if (x > 0)
+        //                 {
+        //                     if (boardArray[x - 1, z].GetTileInfo().CheckState(TileInfo.TileState.WALK) || boardArray[x - 1, z].GetTileInfo().CheckState(TileInfo.TileState.BLOCK))
+        //                         boardArray[x - 1, z].isBreakable = true; 
+        //                 }
+        //                 if (z < BOARD_HEIGHT - 1)
+        //                 {
+        //                     if (boardArray[x, z + 1].GetTileInfo().CheckState(TileInfo.TileState.WALK) || boardArray[x, z + 1].GetTileInfo().CheckState(TileInfo.TileState.BLOCK))
+        //                         boardArray[x, z + 1].isBreakable = true;
+        //                 }
+        //                 if (z > 0)
+        //                 {
+        //                     if (boardArray[x, z - 1].GetTileInfo().CheckState(TileInfo.TileState.WALK) || boardArray[x, z - 1].GetTileInfo().CheckState(TileInfo.TileState.BLOCK))
+        //                         boardArray[x, z - 1].isBreakable = true;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     public void RestartBoard()
     {
         foreach(Tile cell in boardArray)
         {
-            if (cell.GetAttacker())
+            if (cell.Attacker)
             {
-                Destroy(cell.GetAttacker().gameObject);
+                Destroy(cell.Attacker.gameObject);
                 cell.SetAttacker(null);
             }
-            if (!cell.GetState("EMPTY"))
+            if (cell.Type != Tile.TileType.EMPTY)
             {
-                cell.SetState("EMPTY");
-                cell.team = 0;
+                cell.SetType(Tile.TileType.EMPTY);
+                // cell.team = 0;
             }
         }
-        SetupBoardLayout();
+        // SetupBoardLayout();
         turn = 0;
         curr_player = 1;
     }

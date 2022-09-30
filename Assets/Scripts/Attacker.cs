@@ -12,7 +12,7 @@ public class Attacker : MonoBehaviour {
     public Sprite s_player1_attacker, s_player2_attacker;
 
     private const int MAX_MOVE_HISTORY = 3;
-    private int team = 0;
+    public int team = 0;
     private int attackerType = 0;
 
     // Use this for initialization

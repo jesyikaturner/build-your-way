@@ -29,7 +29,6 @@ public class PlayerHand : MonoBehaviour {
         for (int i = 0; i < coord.GetLength(0); i++)
         {
             Tile handTile = Instantiate(placement, new Vector3(coord[i, 0] + offset * TILE_SPACING, 0, coord[i, 1] * TILE_SPACING), Quaternion.identity);
-            handTile.SetState("EMPTY");
             handTile.name = nameArray[playerID-1];
             handTile.playerHand = playerID;
             playerHand[i] = handTile;
@@ -41,77 +40,77 @@ public class PlayerHand : MonoBehaviour {
         //CheckTopThree();
         foreach (Tile tile in playerHand)
         {
-            if (tile.state == Tile.TileState.EMPTY)
+            if (tile.Type == Tile.TileType.EMPTY)
             {
-                tile.state = DrawTile().GetState();
+                tile.SetType(DrawTile().Type);
             }
         }
     }
 
     private void CheckTopThree()
     {
-        // making sure the hand is empty
-        int count = 0;
-        foreach (Tile tile in playerHand)
-        {
-            if (tile.state == Tile.TileState.EMPTY)
-            {
-                count++;
-            }
-            else
-                count = 0;
-        }
-        // if its not stop executing the method
-        if (count > 0)
-            return;
+        // // making sure the hand is empty
+        // int count = 0;
+        // foreach (Tile tile in playerHand)
+        // {
+        //     if (tile.Type == Tile.TileType.EMPTY)
+        //     {
+        //         count++;
+        //     }
+        //     else
+        //         count = 0;
+        // }
+        // // if its not stop executing the method
+        // if (count > 0)
+        //     return;
 
-        // now to check top 3 of deck
-        Tile[] tempTileArray = new Tile[3];
-        int x = 0;
-        for(int i = tileDeck.Count; i > tileDeck.Count - 3; i--)
-        {
-            tempTileArray[x] = tileDeck[i];
-            x++;
-        }
+        // // now to check top 3 of deck
+        // Tile[] tempTileArray = new Tile[3];
+        // int x = 0;
+        // for(int i = tileDeck.Count; i > tileDeck.Count - 3; i--)
+        // {
+        //     tempTileArray[x] = tileDeck[i];
+        //     x++;
+        // }
 
-        count = 0;
+        // count = 0;
 
-        // checking if all 3 are block tiles
-        for(int i = 0; i < tempTileArray.Length; i++)
-        {
-            if (tempTileArray[i].GetState() == Tile.TileState.BLOCK)
-            {
-                count++;
-            }
-            else
-                count = 0;
+        // // checking if all 3 are block tiles
+        // for(int i = 0; i < tempTileArray.Length; i++)
+        // {
+        //     if (tempTileArray[i].Type == Tile.TileType.BLOCK)
+        //     {
+        //         count++;
+        //     }
+        //     else
+        //         count = 0;
 
-        }
+        // }
 
-        if (count < 3)
-        {
-            foreach (Tile tile in playerHand)
-            {
-                if (tile.state == Tile.TileState.EMPTY)
-                {
-                    tile.state = DrawTile().GetState();
-                }
-            }
-            return;
-        }
+        // if (count < 3)
+        // {
+        //     foreach (Tile tile in playerHand)
+        //     {
+        //         if (tile.Type == Tile.TileType.EMPTY)
+        //         {
+        //             tile.SetType(DrawTile().Type);
+        //         }
+        //     }
+        //     return;
+        // }
 
-        for(int i = 0; i < 2; i++)
-        {
-            if (playerHand[i].GetState() == Tile.TileState.EMPTY)
-            {
-                playerHand[i].state = DrawTile().GetState(); 
-            }
-        }
+        // for(int i = 0; i < 2; i++)
+        // {
+        //     if (tile.Type == Tile.TileType.EMPTY)
+        //     {
+        //         tile.SetType(DrawTile().Type);
+        //     }
+        // }
 
         // TODO SEARCH
     }
 
-    private void SearchAndDraw(Tile.TileState state)
+    private void SearchAndDraw(Tile.TileType type)
     {
         //TODO
     }

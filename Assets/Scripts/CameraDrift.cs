@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CameraDrift : MonoBehaviour
 {
+    public bool isDrifting = false;
+
     public Vector3 originPosition;
     public Vector3 randomTargetPosition;
     public float speed = 0.01f;
@@ -14,15 +16,20 @@ public class CameraDrift : MonoBehaviour
     private Coroutine driftRoutine = null;
     private Coroutine returnRoutine = null;
 
-    // Start is called before the first frame update
     void Start()
     {
         originPosition = transform.position;
         randomTargetPosition = GenerateRandomPosition(originPosition, 2f);
     }
 
+    // Starts drifting routine
     public void StartDrifting()
     {
+        if (isDrifting)
+            return;
+
+        isDrifting = true;
+    
         if(returnRoutine != null)
         {
             StopCoroutine(returnRoutine);
@@ -31,6 +38,7 @@ public class CameraDrift : MonoBehaviour
         driftRoutine = StartCoroutine(Drift());
     }
 
+    // Stops the drafting routine
     public void StopDrifting()
     {
         if(driftRoutine != null)
@@ -42,6 +50,7 @@ public class CameraDrift : MonoBehaviour
         returnRoutine = StartCoroutine(ReturnToOrigin());
     }
 
+    // Camera drift logic
     private IEnumerator Drift()
     {
         // while not at target, move towards target
@@ -54,9 +63,12 @@ public class CameraDrift : MonoBehaviour
         // choose new target
         randomTargetPosition = GenerateRandomPosition(originPosition, 2f);
 
-        driftRoutine = StartCoroutine(Drift());
+        // looping the coroutine if the camera is supposed to be drifting
+        if (isDrifting)
+            driftRoutine = StartCoroutine(Drift());
     }
 
+    // Returns to the starting position and stops camera drift
     private IEnumerator ReturnToOrigin()
     {
         while (Vector3.Distance(transform.position, originPosition) > 0.1f)
@@ -64,8 +76,10 @@ public class CameraDrift : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, originPosition, returnSpeed);
             yield return new WaitForSeconds(delay);
         }
+        isDrifting = false;
     }
 
+    // Generates a random position for the camera to drift towards.
     private Vector3 GenerateRandomPosition(Vector3 origin, float distance)
     {
         float randomX = Random.Range(origin.x - distance, origin.x + distance);

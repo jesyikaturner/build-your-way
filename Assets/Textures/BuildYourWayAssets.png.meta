@@ -66,7 +66,7 @@ TextureImporter:
       213: 5120966556851767247
     second: BuildYourWayAssets_19
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -86,6 +86,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -95,11 +97,11 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 0
-    aniso: -1
-    mipBias: -100
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: -1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -117,10 +119,14 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -170,6 +176,18 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Server
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -189,7 +207,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 02a13a811f4ef4b10800000000000000
-      internalID: 1968043286335789600
+      internalID: 1247741727299228335
       vertices: []
       indices: 
       edges: []
@@ -540,6 +558,24 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      BuildYourWayAssets_5: -6167735133177027912
+      BuildYourWayAssets_0: 1247741727299228335
+      BuildYourWayAssets_16: -1641994464613482713
+      BuildYourWayAssets_7: 6819689143036527050
+      BuildYourWayAssets_1: 3335841421138594507
+      BuildYourWayAssets_13: -4119978125982121407
+      BuildYourWayAssets_11: -3350174318481837016
+      BuildYourWayAssets_2: -3931194436491659533
+      BuildYourWayAssets_3: -1724801235375628949
+      BuildYourWayAssets_4: 1591872420958258207
+      BuildYourWayAssets_9: 3739965962771623940
+      BuildYourWayAssets_8: 7801701865459849651
+      BuildYourWayAssets_12: -3616257123805654580
+      BuildYourWayAssets_15: 6089569434656412315
+      BuildYourWayAssets_6: 2442829571497383603
+      BuildYourWayAssets_10: 1814482438713699581
+      BuildYourWayAssets_14: -2767039274757811958
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

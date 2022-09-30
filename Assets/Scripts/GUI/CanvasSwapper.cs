@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class CanvasSwapper : MonoBehaviour {
 
+    // Canvas Fade Transition
     [SerializeField] private Canvas activeCanvas;
     [SerializeField] private Canvas prevCanvas;
     [SerializeField] private bool transitionActive = true;
+
+    public string prevCanvasString;
+    public string activeCanvasString = "DEBUG";
+
 
     public Canvas mainMenu;
     public Canvas debugMenu;
@@ -25,13 +30,15 @@ public class CanvasSwapper : MonoBehaviour {
         this.gameManager = gameManager;
         this.soundManager = soundManager;
 
-        SetCanvas("DEBUG");
+        SetCanvas(activeCanvasString);
         activeCanvas = debugMenu;
         soundManager.PlayMusic(1);
     }
 
     public void SetCanvas(string menu)
     {
+        prevCanvasString = activeCanvasString;
+        activeCanvasString = menu;
         switch (menu)
         {
             case "MENU":
@@ -111,7 +118,6 @@ public class CanvasSwapper : MonoBehaviour {
         soundManager.PlaySound("SELECT");
     }
 
-
     public void Btn_Options()
     {
         transitionActive = false;
@@ -151,6 +157,13 @@ public class CanvasSwapper : MonoBehaviour {
     {
         transitionActive = false;
         soundManager.PlaySound("SELECT");
+    }
+
+    public void Btn_Back()
+    {
+        transitionActive = false;
+        soundManager.PlaySound("SELECT");
+        SetCanvas(prevCanvasString);
     }
 
     private IEnumerator CanvasFadeTrasition(float outDelay, float inDelay)
