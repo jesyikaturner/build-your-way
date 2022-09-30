@@ -42,9 +42,9 @@ public class BoardManager : MonoBehaviour {
      
     void Start()
     {
-        PopulateTileDeck();
+        // PopulateTileDeck();
         SetupBoard();
-        SetupPlayerHands();
+        // SetupPlayerHands();
     }
 
 #region Board Setup
@@ -198,77 +198,73 @@ public class BoardManager : MonoBehaviour {
     }
 
     // Checks tile that are walkable around the attacker tiles and makes them selectable.
-    public bool PossibleAttackerMoves (Tile place)
+    public bool PossibleAttackerMoves (Tile currTile)
     {
         bool canMove = false;
         
-        // foreach(Tile cell in boardArray)
-        // {
-        //     TileInfo cellInfo = cell.GetTileInfo();
-        //     if(Mathf.Abs(cellInfo.GetPosition()[0] - place.GetTileInfo().GetPosition()[0]) + Mathf.Abs(cellInfo.GetPosition()[1] - place.GetTileInfo().GetPosition()[1]) <= 1)
-        //     {
-        //         if((cellInfo.CheckState(TileInfo.TileState.WALK) || cellInfo.CheckState(TileInfo.TileState.BASE1) ||
-        //             cellInfo.CheckState(TileInfo.TileState.BASE2)) && !cell.GetAttacker() && !cellInfo.TileIsSelected())
-        //         {
-        //             cellInfo.ToggleSelectable();
-        //             canMove = true;
-        //         }
-        //     }
-        // }
+        foreach(Tile tile in boardArray)
+        {
+            if(Mathf.Abs(tile.Position[0] - currTile.Position[0]) + Mathf.Abs(tile.Position[1] - currTile.Position[1]) <= 1)
+            {
+                if ((tile.Type == Tile.TileType.WALK || tile.Type == Tile.TileType.BASE1 || tile.Type == Tile.TileType.BASE2)
+                && !tile.Attacker && !tile.IsSelected)
+                {
+                    tile.ToggleSelectable();
+                    canMove = true;
+                }
+            }
+        }
         return canMove;
     }
 
     // Clears the board, toggles off all selected tiles and sets breakable tiles to non-breakable.
     public void ClearBoard()
     {
-        // foreach(Tile place in boardArray)
-        // {
-        //     TileInfo placeInfo = place.GetTileInfo();
-        //     if (placeInfo.TileIsSelected())
-        //         placeInfo.ToggleSelectable();
-        //     if (place.isBreakable)
-        //         place.isBreakable = false;
-        // }
+        foreach(Tile tile in boardArray)
+        {
+            if (tile.IsSelected)
+                tile.ToggleSelectable();
+            if (tile.isBreakable)
+                tile.isBreakable = false;
+        }
     }
 
     // Makes cells around the attackers selectable for a tile to be placed on them.
     public void PossibleTilePlacements(int playerID)
     {
-        // Debug.Log("Hello!");
-        // foreach(Tile cell in boardArray)
-        // {
-        //     if(cell.GetAttacker() && cell.GetAttacker().Team == playerID)
-        //     {
-        //         Debug.Log(playerID);
-        //         TileInfo currCell = cell.GetTileInfo();
+        Debug.Log("PossibleTilePlacements");
+        foreach(Tile tile in boardArray)
+        {
+            if(tile.Attacker && tile.Attacker.team == playerID)
+            {
+                // Tile currTile = tile;
 
-        //         foreach(Tile aCell in boardArray)
-        //         {
-        //             TileInfo adjacentCell = aCell.GetTileInfo();
+                foreach(Tile adjacentTile in boardArray)
+                {
+                    // Tile currAdjacentTile = adjacentTile;
+                    if (adjacentTile.Type == Tile.TileType.EMPTY)
+                    {
+                        if (adjacentTile.Position[0] > -1 && adjacentTile.Position[0] < BOARD_WIDTH)
+                        {
+                            if (adjacentTile.Position[0] == tile.Position[0] + 1 && adjacentTile.Position[1] == tile.Position[1] && !adjacentTile.IsSelected)
+                                adjacentTile.ToggleSelectable();
 
-        //             if (adjacentCell.CheckState(TileInfo.TileState.EMPTY))
-        //             {
-        //                 if (adjacentCell.GetPosition()[0] > -1 && adjacentCell.GetPosition()[0] < BOARD_WIDTH)
-        //                 {
-        //                     if (adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] + 1 && adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] && !adjacentCell.TileIsSelected())
-        //                         adjacentCell.ToggleSelectable();
+                            if (adjacentTile.Position[0] == tile.Position[0] - 1 && adjacentTile.Position[1] == tile.Position[1] && !adjacentTile.IsSelected)
+                                adjacentTile.ToggleSelectable();
+                        }
 
-        //                     if (adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] - 1 && adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] && !adjacentCell.TileIsSelected())
-        //                         adjacentCell.ToggleSelectable();
-        //                 }
+                        // if (adjacentCell.GetPosition()[1] > -1 && adjacentCell.GetPosition()[1] < BOARD_HEIGHT)
+                        // {
+                        //     if (adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] + 1 && adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] && !adjacentCell.TileIsSelected())
+                        //         adjacentCell.ToggleSelectable();
 
-        //                 if (adjacentCell.GetPosition()[1] > -1 && adjacentCell.GetPosition()[1] < BOARD_HEIGHT)
-        //                 {
-        //                     if (adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] + 1 && adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] && !adjacentCell.TileIsSelected())
-        //                         adjacentCell.ToggleSelectable();
-
-        //                     if (adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] - 1 && adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] && !adjacentCell.TileIsSelected())
-        //                         adjacentCell.ToggleSelectable();
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+                        //     if (adjacentCell.GetPosition()[1] == currCell.GetPosition()[1] - 1 && adjacentCell.GetPosition()[0] == currCell.GetPosition()[0] && !adjacentCell.TileIsSelected())
+                        //         adjacentCell.ToggleSelectable();
+                        // }
+                    }
+                }
+            }
+        }
     }
 
     public void ShowBreakableTiles()

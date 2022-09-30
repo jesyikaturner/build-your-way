@@ -1,6 +1,6 @@
 1,e,e,e,e,e
 1,e,e,e,b,e
-e,e,1,b,e,e
-e,e,b,2,e,e
+w,e,1,b,e,e
+e,e,b,2,e,w
 e,b,e,e,e,2
 e,e,e,e,e,2

@@ -7,14 +7,14 @@ public class Tile : MonoBehaviour
     {
         WALK, BLOCK, BASE1, BASE2, EMPTY
     }
-    public TileType Type {get; private set; }
+    public TileType Type { get; private set; }
     public int Team { get; set; }
     public Vector2 Position {get; set; }
     public bool IsSelected { get; private set; }
     public Attacker Attacker {get; private set; }
 
 	public int xPos, zPos, playerHand = 0;
-	private SpriteRenderer spriteRenderer;
+	public SpriteRenderer spriteRenderer;
 
     public bool isBreakable = false;
     public bool isBreaking = false;
@@ -24,9 +24,12 @@ public class Tile : MonoBehaviour
     public Sprite b1_walk, b2_walk, b1_block, b2_block;
 
 	// Use this for initialization
+    void Awake()
+    {
+        spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+    }
 	void Start () 
     {
-		spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
         Type = TileType.EMPTY;
         Team = 0;
         Position = Vector2.zero;
@@ -43,15 +46,20 @@ public class Tile : MonoBehaviour
         }
 	}
 
-    public void SetType(TileType type)
+    public void SetType(TileType inputType)
     {
-        Type = type;
+        Type = inputType;
         if(Type == TileType.BASE1) Team = 1;
         if(Type == TileType.BASE2) Team = 2;
+        Debug.Log(Type);
+        Debug.Log(Team);
+	    SetSprite();
+
     }
 
 	private void SetSprite()
 	{
+        Debug.Log(Type);
         switch (Type)
         {
             case TileType.EMPTY:
