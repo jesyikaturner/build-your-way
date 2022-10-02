@@ -13,7 +13,7 @@ public class Attacker : MonoBehaviour {
 
     private const int MAX_MOVE_HISTORY = 3;
     public int team = 0;
-    private int attackerType = 0;
+    private int attackerStatus = 0;
 
     // Use this for initialization
     private void Awake()
@@ -23,7 +23,7 @@ public class Attacker : MonoBehaviour {
 
     void Start() {
         sprite = transform.GetChild(0).GetComponent<SpriteRenderer>();
-        attackerType = team;
+        attackerStatus = team;
         
     }
 
@@ -34,7 +34,7 @@ public class Attacker : MonoBehaviour {
 
     void SetSprite()
     {
-        switch (attackerType)
+        switch (attackerStatus)
         {
             case -2:
                 sprite.sprite = s_player2_attacker;
@@ -56,7 +56,7 @@ public class Attacker : MonoBehaviour {
 
     public void ToggleSelect()
     {
-        attackerType *= -1;
+        attackerStatus *= -1;
     }
 
     public int Team{

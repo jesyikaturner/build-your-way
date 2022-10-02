@@ -40,9 +40,9 @@ public class PlayerHand : MonoBehaviour {
         //CheckTopThree();
         foreach (Tile tile in playerHand)
         {
-            if (tile.Type == Tile.TileType.EMPTY)
+            if (tile.Status == Tile.TileStatus.EMPTY)
             {
-                tile.SetType(DrawTile().Type);
+                tile.SetStatus(DrawTile().Status);
             }
         }
     }
@@ -53,7 +53,7 @@ public class PlayerHand : MonoBehaviour {
         // int count = 0;
         // foreach (Tile tile in playerHand)
         // {
-        //     if (tile.Type == Tile.TileType.EMPTY)
+        //     if (tile.Status == Tile.TileStatus.EMPTY)
         //     {
         //         count++;
         //     }
@@ -78,7 +78,7 @@ public class PlayerHand : MonoBehaviour {
         // // checking if all 3 are block tiles
         // for(int i = 0; i < tempTileArray.Length; i++)
         // {
-        //     if (tempTileArray[i].Type == Tile.TileType.BLOCK)
+        //     if (tempTileArray[i].Status == Tile.TileStatus.BLOCK)
         //     {
         //         count++;
         //     }
@@ -91,9 +91,9 @@ public class PlayerHand : MonoBehaviour {
         // {
         //     foreach (Tile tile in playerHand)
         //     {
-        //         if (tile.Type == Tile.TileType.EMPTY)
+        //         if (tile.Status == Tile.TileStatus.EMPTY)
         //         {
-        //             tile.SetType(DrawTile().Type);
+        //             tile.SetStatus(DrawTile().Status);
         //         }
         //     }
         //     return;
@@ -101,16 +101,16 @@ public class PlayerHand : MonoBehaviour {
 
         // for(int i = 0; i < 2; i++)
         // {
-        //     if (tile.Type == Tile.TileType.EMPTY)
+        //     if (tile.Status == Tile.TileStatus.EMPTY)
         //     {
-        //         tile.SetType(DrawTile().Type);
+        //         tile.SetStatus(DrawTile().Status);
         //     }
         // }
 
         // TODO SEARCH
     }
 
-    private void SearchAndDraw(Tile.TileType type)
+    private void SearchAndDraw(Tile.TileStatus status)
     {
         //TODO
     }

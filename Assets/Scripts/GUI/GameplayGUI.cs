@@ -18,15 +18,13 @@ public class GameplayGUI : MonoBehaviour {
     public GameObject restartButton;
     public GameObject menuButton;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
+    private List<IController> controllers;
 
-    public void SetupGameplayGUI(GameManager gameManager, BoardManager boardManager)
+    public void SetupGameplayGUI(GameManager gameManager, BoardManager boardManager, ref List<IController> controllers)
     {
         this.boardManager = boardManager;
         this.gameManager = gameManager;
+        this.controllers = controllers;
 
         //playerIndicator = gameplayGUI.transform.Find("INDICATOR").GetComponent<Image>();
         //winnerText = gameplayGUI.transform.Find("WINNER").GetComponent<Text>();
@@ -39,7 +37,49 @@ public class GameplayGUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        switch (boardManager.GetCurrPlayer())
+        SetActivePlayerIndicator();
+
+        // if (gameManager.PlayerOneWins)
+        // {
+        //     winnerText.text = "PLAYER 1 WINS";
+        //     winnerText.gameObject.SetActive(true);
+        //     restartButton.SetActive(true);
+        //     menuButton.SetActive(true);
+        // }
+
+        // if (gameManager.PlayerTwoWins)
+        // {
+        //     winnerText.text = "PLAYER 2 WINS";
+        //     winnerText.gameObject.SetActive(true);
+        //     restartButton.SetActive(true);
+        //     menuButton.SetActive(true);
+        // }
+
+        // if (Input.GetKeyUp(KeyCode.P) && gameManager.isPlaying)
+        // {
+        //     HandlePause();
+        // }
+    }
+
+    private void SetActivePlayerIndicator()
+    {
+        // return if the controllers haven't been set yet
+        if (controllers == null || controllers.Count < 1)
+            return;
+
+        int activeController = 0;
+
+        for (int i = 0; i < controllers.Count; i++)
+        {
+            // figure out what component the current controller is and set the activeactive controller to the corresponding index (+1 because of 0 indexing)
+            ComputerPlayer currCompController = controllers[i].GetType() == typeof(ComputerPlayer) ? GetComponent<ComputerPlayer>() : null;
+            PlayerControls currPlayerController = controllers[i].GetType() == typeof(PlayerControls) ? GetComponent<PlayerControls>() : null;
+            if ((currCompController && currCompController.isActive) || (currPlayerController && currPlayerController.isActive))
+                activeController = i+1;
+        }
+        
+        // change the indicator based on the active controller
+        switch(activeController)
         {
             case 1:
                 playerIndicator.sprite = playerOneIcon;
@@ -47,58 +87,36 @@ public class GameplayGUI : MonoBehaviour {
             case 2:
                 playerIndicator.sprite = playerTwoIcon;
                 break;
-
             default:
-                Debug.LogError("Current Player is returning a bad value.");
+                Debug.LogError("activeController is returning a bad value.");
                 break;
         }
 
-
-        if (gameManager.PlayerOneWins)
-        {
-            winnerText.text = "PLAYER 1 WINS";
-            winnerText.gameObject.SetActive(true);
-            restartButton.SetActive(true);
-            menuButton.SetActive(true);
-        }
-
-        if (gameManager.PlayerTwoWins)
-        {
-            winnerText.text = "PLAYER 2 WINS";
-            winnerText.gameObject.SetActive(true);
-            restartButton.SetActive(true);
-            menuButton.SetActive(true);
-        }
-
-        if (Input.GetKeyUp(KeyCode.P) && gameManager.isPlaying)
-        {
-            HandlePause();
-        }
     }
 
-    public void HandlePause()
-    {
-        boardManager.IsPaused(!boardManager.IsPaused());
-        if (boardManager.IsPaused())
-        {
-            restartButton.SetActive(true);
-            menuButton.SetActive(true);
-            pausedImage.SetActive(true);
-            //StopComputerPlayer();
-        }
-        else
-        {
-            restartButton.SetActive(false);
-            menuButton.SetActive(false);
-            pausedImage.SetActive(false);
-            //StartComputerPlayer();
-        }
-    }
+    // public void HandlePause()
+    // {
+    //     boardManager.IsPaused(!boardManager.IsPaused());
+    //     if (boardManager.IsPaused())
+    //     {
+    //         restartButton.SetActive(true);
+    //         menuButton.SetActive(true);
+    //         pausedImage.SetActive(true);
+    //         //StopComputerPlayer();
+    //     }
+    //     else
+    //     {
+    //         restartButton.SetActive(false);
+    //         menuButton.SetActive(false);
+    //         pausedImage.SetActive(false);
+    //         //StartComputerPlayer();
+    //     }
+    // }
 
     public void Btn_Restart()
     {
         boardManager.RestartBoard();
-        HandlePause();
+        // HandlePause();
         winnerText.gameObject.SetActive(false);
     }
 

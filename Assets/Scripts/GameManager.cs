@@ -5,15 +5,19 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour 
 {
+    // Constants
+    private const int MAX_MOVES = 2;
+
+    // GameMode Modes
     public enum GameMode
     {
         PVP, PVC, CVC
     }
     public GameMode mode;
 
+    // Managers
     public BoardManager boardManager;
     public SoundManager soundManager;
-    public DeckManager deckManager;
 
     private List<IController> players;
 
@@ -21,37 +25,26 @@ public class GameManager : MonoBehaviour
     public bool PlayerTwoWins = false;
     public bool isPlaying = false;
 
-    [SerializeField] private int curr_moves = 2;
-	private int curr_player = 1;
-    private const int max_moves = 2; // Total moves each player can do
+    public int currMovesLeft;
 
 
 	// Use this for initialization
 	void Start () {
-        gameObject.GetComponent<GameplayGUI>().SetupGameplayGUI(this, boardManager);
         gameObject.GetComponent<CanvasSwapper>().SetupCanvas(this, soundManager);
+        currMovesLeft = boardManager.CurrMovesLeft = MAX_MOVES;
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*
-        if(players != null)
-        {
-            boardManager.currentPlayer = players[boardManager.SwitchPlayer() - 1];
-            if (boardManager.currentPlayer.GetType() == typeof(ComputerPlayer))
-            {
-                ComputerPlayer cp = (ComputerPlayer)boardManager.currentPlayer;
-                cp.StartComputerLogic();
-            }
-        }*/
-
+        currMovesLeft = boardManager.CurrMovesLeft;
         SwitchPlayer();
 
         // PlayerOneWins = CheckForWinner(1);
         // PlayerTwoWins = CheckForWinner(2);
     }
 
+#region Player Controllers Creation and Deletion
     public void SetupControllers()
     {
         players = new List<IController>();
@@ -86,6 +79,8 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("gamemode is invalid");
                 break;
         }
+        
+        gameObject.GetComponent<GameplayGUI>().SetupGameplayGUI(this, boardManager, ref players);
     }
 
     public void RemoveControllers()
@@ -100,11 +95,7 @@ public class GameManager : MonoBehaviour
                 Destroy(gameObject.GetComponent<PlayerControls>());
         }
     }
-
-    public List<IController> GetPlayers()
-    {
-        return players;
-    }
+#endregion
 
     // public bool CheckForWinner(int playerID)
     // {
@@ -129,11 +120,11 @@ public class GameManager : MonoBehaviour
     private void SwitchPlayer()
     {
         // Swap player when the moves get below 1. Then reset the moves to max.
-        if(curr_moves < 1)
+        if(currMovesLeft < 1)
 		{
             players[0].ToggleActive();
             players[1].ToggleActive();
-			curr_moves = max_moves;
+			boardManager.CurrMovesLeft = MAX_MOVES;
 		}
     }
 }

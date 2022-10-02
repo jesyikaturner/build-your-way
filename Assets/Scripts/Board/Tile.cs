@@ -3,11 +3,11 @@ using System.Collections;
 
 public class Tile : MonoBehaviour 
 {
-    public enum TileType
+    public enum TileStatus
     {
         WALK, BLOCK, BASE1, BASE2, EMPTY
     }
-    public TileType Type { get; private set; }
+    public TileStatus Status { get; private set; }
     public int Team { get; set; }
     public Vector2 Position {get; set; }
     public bool IsSelected { get; private set; }
@@ -23,17 +23,10 @@ public class Tile : MonoBehaviour
 	public Sprite s_walk, s_block, s_base1, s_base2, s_empty;
     public Sprite b1_walk, b2_walk, b1_block, b2_block;
 
-	// Use this for initialization
-    void Awake()
-    {
-        spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
-    }
+
 	void Start () 
     {
-        Type = TileType.EMPTY;
-        Team = 0;
-        Position = Vector2.zero;
-        IsSelected = false;
+        spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
 	}
 	
 	// Update is called once per frame
@@ -46,35 +39,33 @@ public class Tile : MonoBehaviour
         }
 	}
 
-    public void SetType(TileType inputType)
+    public void SetStatus(TileStatus inputStatus)
     {
-        Type = inputType;
-        if(Type == TileType.BASE1) Team = 1;
-        if(Type == TileType.BASE2) Team = 2;
-        Debug.Log(Type);
-        Debug.Log(Team);
-	    SetSprite();
+        Status = inputStatus;
+        if(Status == TileStatus.BASE1) Team = 1;
+        if(Status == TileStatus.BASE2) Team = 2;
 
     }
 
 	private void SetSprite()
 	{
-        Debug.Log(Type);
-        switch (Type)
+        Sprite currSprite = spriteRenderer.sprite;
+
+        switch (Status)
         {
-            case TileType.EMPTY:
+            case TileStatus.EMPTY:
                 spriteRenderer.sprite = empty;
                 break;
-            case TileType.WALK:
+            case TileStatus.WALK:
                 spriteRenderer.sprite = walk;
                 break;
-            case TileType.BLOCK:
+            case TileStatus.BLOCK:
                 spriteRenderer.sprite = block;
                 break;
-            case TileType.BASE1:
+            case TileStatus.BASE1:
                 spriteRenderer.sprite = base1;
                 break;
-            case TileType.BASE2:
+            case TileStatus.BASE2:
                 spriteRenderer.sprite = base2;
                 break;
             default:
@@ -84,16 +75,11 @@ public class Tile : MonoBehaviour
 
         if (IsSelected)
         {
-            if (spriteRenderer.sprite == empty)
-                spriteRenderer.sprite = s_empty;
-            if (spriteRenderer.sprite == walk)
-                spriteRenderer.sprite = s_walk;
-            if (spriteRenderer.sprite == block)
-                spriteRenderer.sprite = s_block;
-            if (spriteRenderer.sprite == base1)
-                spriteRenderer.sprite = s_base1;
-            if (spriteRenderer.sprite == base2)
-                spriteRenderer.sprite = s_base2;
+            if (spriteRenderer.sprite == empty) spriteRenderer.sprite = s_empty;
+            if (spriteRenderer.sprite == walk) spriteRenderer.sprite = s_walk;
+            if (spriteRenderer.sprite == block) spriteRenderer.sprite = s_block;
+            if (spriteRenderer.sprite == base1) spriteRenderer.sprite = s_base1;
+            if (spriteRenderer.sprite == base2) spriteRenderer.sprite = s_base2;
         }
 	}
 
@@ -102,25 +88,19 @@ public class Tile : MonoBehaviour
         IsSelected = !IsSelected;
     }
 
-    // public TileInfo GetTileInfo()
-    // {
-    //     return _info;
-    // }
-
 	public bool SetAttacker(Attacker attacker)
 	{
+        // set the tile attacker to null if null is entered
+        if(attacker == null)
+        {
+            Attacker = null;
+            return true;
+        }
         // if tile has attacker return false
         if (Attacker)
         {
             Debug.LogError("Cannot set attacker.");
             return false;
-        }
-
-        // set the tile attacker to null if null is entered
-        if(!attacker)
-        {
-            Attacker = null;
-            return true;
         }
 
         // set the tile attacker
@@ -130,7 +110,7 @@ public class Tile : MonoBehaviour
 
     public int BreakAnimation(float timer)
     {
-        int blockType = 0;
+        int blockStatus = 0;
         if(timer > 0f)
         {
             isBreaking = true;
@@ -152,11 +132,11 @@ public class Tile : MonoBehaviour
         if(timer > 2f)
         {
             if(spriteRenderer.sprite == b2_walk)
-                blockType = 1;
+                blockStatus = 1;
             if (spriteRenderer.sprite == b2_block)
-                blockType = 2;
+                blockStatus = 2;
             //state = PlaceState.EMPTY;
         }
-        return blockType;
+        return blockStatus;
     }
 }

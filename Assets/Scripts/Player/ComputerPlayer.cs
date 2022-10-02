@@ -74,33 +74,33 @@ public class ComputerPlayer : MonoBehaviour, IController {
 
     void Update()
     {
-        int choice = Random.Range(1, 4);
+        // int choice = Random.Range(1, 4);
 
-        timer = timer > 0f ? timer -= Time.deltaTime : 0f;
+        // timer = timer > 0f ? timer -= Time.deltaTime : 0f;
 
-        if (boardManager.GetCurrPlayer() != playerID || boardManager.IsPaused() || timer > 0f)
-            choice = 0;
+        // if (boardManager.GetCurrPlayer() != playerID || boardManager.IsPaused() || timer > 0f)
+        //     choice = 0;
 
-        switch(choice)
-        {
-            case 1:
-                if (DestroyTile(null))
-                    timer = moveDelay;
-                break;
-            case 2:
-                if (MoveTile(null))
-                    timer = moveDelay;
-                break;
-            case 3:
-                if (MoveAttacker(null))
-                    timer = moveDelay;
-                break;
+        // switch(choice)
+        // {
+        //     case 1:
+        //         if (DestroyTile(null))
+        //             timer = moveDelay;
+        //         break;
+        //     case 2:
+        //         if (MoveTile(null))
+        //             timer = moveDelay;
+        //         break;
+        //     case 3:
+        //         if (MoveAttacker(null))
+        //             timer = moveDelay;
+        //         break;
 
-            default:
-                // continue without doing anything
-                //Debug.LogError(choice);
-                break;
-        }
+        //     default:
+        //         // continue without doing anything
+        //         //Debug.LogError(choice);
+        //         break;
+        // }
     }
 
     /* Goes through the steps of random selecting, add the possible 

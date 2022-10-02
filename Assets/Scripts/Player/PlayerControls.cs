@@ -50,7 +50,7 @@ public class PlayerControls : MonoBehaviour, IController {
 				temp = hit.collider.gameObject.GetComponent<Tile>();
 		}
 
-        boardManager.ShowBreakableTiles();
+        boardManager.ShowBreakableTiles(playerID);
         if (Input.GetMouseButtonUp(0))
         {
             if (!temp)
@@ -101,7 +101,7 @@ public class PlayerControls : MonoBehaviour, IController {
 			{
 				selected = place;
                 selected.ToggleSelectable();
-                boardManager.PossibleTilePlacements(1);
+                boardManager.PossibleTilePlacements(playerID);
                 Debug.Log("Player has selected a hand tile.");
                 // PLAY SOUND
                 soundManager.PlaySound("SELECT");
@@ -123,10 +123,10 @@ public class PlayerControls : MonoBehaviour, IController {
 		else
 		{
             // Move the tile from the player's hand.
-            if (place.Type == Tile.TileType.EMPTY && place.IsSelected)
+            if (place.Status == Tile.TileStatus.EMPTY && place.IsSelected)
             {
-                place.SetType(selected.Type);
-                selected.SetType(Tile.TileType.EMPTY);
+                place.SetStatus(selected.Status);
+                selected.SetStatus(Tile.TileStatus.EMPTY);
                 boardManager.ClearBoard();
                 if(boardManager.SubtractMove(1))
                 {
@@ -214,11 +214,11 @@ public class PlayerControls : MonoBehaviour, IController {
 
     public bool DestroyTile(Tile place)
     {
-        if(place.Type == Tile.TileType.WALK)
+        if(place.Status == Tile.TileStatus.WALK)
         {
             if (boardManager.SubtractMove(1))
             {
-                place.SetType(Tile.TileType.EMPTY);
+                place.SetStatus(Tile.TileStatus.EMPTY);
                 // PLAY SUCCESS SOUND
                 soundManager.PlaySound("SELECT");
             }
@@ -229,11 +229,11 @@ public class PlayerControls : MonoBehaviour, IController {
             }
 
         }
-        if(place.Type == Tile.TileType.BLOCK)
+        if(place.Status == Tile.TileStatus.BLOCK)
         {
             if (boardManager.SubtractMove(2))
             {
-                place.SetType(Tile.TileType.EMPTY);
+                place.SetStatus(Tile.TileStatus.EMPTY);
                 // PLAY SUCCESS SOUND
                 soundManager.PlaySound("SELECT");
             }
