@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 public class BoardManager : MonoBehaviour {
 
-    // Public Variables for the Inspector
+    // ** Inspector Variables **
     public Tile placement;
     public Attacker playerAttacker;
 
-    // Constants
+    // ** Constants **
     private const int BOARD_WIDTH = 6, BOARD_HEIGHT = 6; // Size of the board
     private const float BOARD_SPACING = 1f; // Distance between the tiles
     private const float PIECE_OFFSET = 0.1f; // Distance above the tile that pieces rest
@@ -21,9 +21,6 @@ public class BoardManager : MonoBehaviour {
     // Private Variables
     private Tile[,] boardArray;
     private List<PlayerHand> handHandlers;
-    // private int turn = 0;
-    // [SerializeField] private int curr_moves = 2;
-	// private int curr_player = 1;
     // private bool isPaused = false;
 
     private List<Tile> tileDeck;
