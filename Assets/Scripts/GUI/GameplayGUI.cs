@@ -71,9 +71,19 @@ public class GameplayGUI : MonoBehaviour {
 
         for (int i = 0; i < controllers.Count; i++)
         {
+            ComputerPlayer currCompController = null;
+            PlayerControls currPlayerController = null;
+
             // figure out what component the current controller is and set the activeactive controller to the corresponding index (+1 because of 0 indexing)
-            ComputerPlayer currCompController = controllers[i].GetType() == typeof(ComputerPlayer) ? GetComponent<ComputerPlayer>() : null;
-            PlayerControls currPlayerController = controllers[i].GetType() == typeof(PlayerControls) ? GetComponent<PlayerControls>() : null;
+            if ( GetComponents<ComputerPlayer>().Length > 1)
+                currCompController = controllers[i].GetType() == typeof(ComputerPlayer) ? GetComponents<ComputerPlayer>()[i] : null;
+            else
+                currCompController = controllers[i].GetType() == typeof(ComputerPlayer) ? GetComponent<ComputerPlayer>() : null;
+            if ( GetComponents<PlayerControls>().Length > 1)
+                currPlayerController = controllers[i].GetType() == typeof(PlayerControls) ? GetComponents<PlayerControls>()[i] : null;
+            else
+                currPlayerController = controllers[i].GetType() == typeof(PlayerControls) ? GetComponent<PlayerControls>() : null;
+
             if ((currCompController && currCompController.isActive) || (currPlayerController && currPlayerController.isActive))
                 activeController = i+1;
         }
@@ -88,10 +98,9 @@ public class GameplayGUI : MonoBehaviour {
                 playerIndicator.sprite = playerTwoIcon;
                 break;
             default:
-                Debug.LogError("activeController is returning a bad value.");
+                Debug.LogErrorFormat("{0} is returning a bad value.", activeController);
                 break;
         }
-
     }
 
     // public void HandlePause()

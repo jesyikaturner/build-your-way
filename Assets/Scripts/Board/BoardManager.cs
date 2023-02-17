@@ -14,20 +14,21 @@ public class BoardManager : MonoBehaviour {
     private const float BOARD_SPACING = 1f; // Distance between the tiles
     private const float PIECE_OFFSET = 0.1f; // Distance above the tile that pieces rest
     private const int TILE_DECK_SIZE = 50; // Total number of tiles in the tile deck
+    private readonly Vector2 TILE_DECK_COORDS = new Vector2(-20, 0); // Coords of Deck
 
     private readonly int[,] PLAYER_ONE_COORDS = { { 0, 0 }, { 0, 1 }, { 0, 2 } };
     private readonly int[,] PLAYER_TWO_COORDS = { { 5, 3 }, { 5, 4 }, { 5, 5 } };
 
     // Private Variables
-    private Tile[,] boardArray;
     private List<PlayerHand> handHandlers;
     // private bool isPaused = false;
 
     private List<Tile> tileDeck;
-    private int deckSize = 50;
 
     public int CurrMovesLeft { get; set; }
     public Tile[,] BoardArray { get; set; }
+    public List<PlayerHand> ControllerHandsList { get; set; }
+    public List<Tile> TileDeck { get; set; }
 
     /*
      * Setting up board layout.
@@ -53,7 +54,7 @@ public class BoardManager : MonoBehaviour {
         FileHandler _fileHandler = FileHandler.Instance;
         List<string> boardString = _fileHandler.ReadTextFile("Scripts/Data/boardlayout.txt");
 
-        boardArray = new Tile[BOARD_WIDTH, BOARD_HEIGHT];
+        BoardArray = new Tile[BOARD_WIDTH, BOARD_HEIGHT];
 
         for(int row = 0; row < boardString.Count; row++)
         {
@@ -67,30 +68,30 @@ public class BoardManager : MonoBehaviour {
                         //Takes in x value, z value, the offset and the name of the object
                         Tile emptyTile = CreatePlaceTile(col, row, 0, "Empty");
                         emptyTile.SetStatus(Tile.TileStatus.EMPTY);
-                        boardArray[col, row] = emptyTile;
+                        BoardArray[col, row] = emptyTile;
                         break;
                     case "b":
                         Tile blockTile = CreatePlaceTile(col, row, 0, "Block");
                         // Setting the object's state to block
                         blockTile.SetStatus(Tile.TileStatus.BLOCK);
-                        boardArray[col, row] = blockTile;
+                        BoardArray[col, row] = blockTile;
                         break;
                     case "w":
                         Tile walkTile = CreatePlaceTile(col, row, 0, "Walk");
                         walkTile.SetStatus(Tile.TileStatus.WALK);
-                        boardArray[col, row] = walkTile;
+                        BoardArray[col, row] = walkTile;
                         break;
                     case "1":
                         Tile base1Tile = CreatePlaceTile(col, row, 0, "Base 1");
                         base1Tile.SetStatus(Tile.TileStatus.BASE1);
-                        boardArray[col, row] = base1Tile;
+                        BoardArray[col, row] = base1Tile;
                         // Create attacker for base tile
                         base1Tile.SetAttacker(CreateAttacker(base1Tile.Team, new Vector2(col, row), "Player 1 Attacker", base1Tile));
                         break;
                     case "2":
                         Tile base2Tile = CreatePlaceTile(col, row, 0, "Base 2");
                         base2Tile.SetStatus(Tile.TileStatus.BASE2);
-                        boardArray[col, row] = base2Tile;
+                        BoardArray[col, row] = base2Tile;
                         base2Tile.SetAttacker(CreateAttacker(base2Tile.Team, new Vector2(col, row), "Player 2 Attacker", base2Tile));
                         break;
                     default:
@@ -128,13 +129,25 @@ public class BoardManager : MonoBehaviour {
 #region Hand Tile Setup
     private void PopulateTileDeck()
     {
+        TileDeck = new();
+
+        for (int i = 0; i < TILE_DECK_SIZE; i++)
+        {
+            TileDeck.Add(Instantiate(placement, TILE_DECK_COORDS, Quaternion.identity));
+            if(i < (TILE_DECK_SIZE/3)) TileDeck[i].SetStatus(Tile.TileStatus.BLOCK);
+            else TileDeck[i].SetStatus(Tile.TileStatus.WALK);
+        }
+
+        TileDeck.Shuffle<Tile>();
+
+
         tileDeck = new List<Tile>();
 
-        for(int i  = 0; i < deckSize; i++)
+        for(int i  = 0; i < TILE_DECK_SIZE; i++)
         {
             // TODO variable for tiledeck position
             tileDeck.Add(Instantiate(placement, new Vector3(-20,0), Quaternion.identity));
-            if (i < (deckSize/3))
+            if (i < (TILE_DECK_SIZE/3))
             {
 
                 tileDeck[i].SetStatus(Tile.TileStatus.BLOCK);
@@ -193,7 +206,7 @@ public class BoardManager : MonoBehaviour {
     {
         bool canMove = false;
         
-        foreach(Tile tile in boardArray)
+        foreach(Tile tile in BoardArray)
         {
             if(Mathf.Abs(tile.Position[0] - currTile.Position[0]) + Mathf.Abs(tile.Position[1] - currTile.Position[1]) <= 1)
             {
@@ -212,11 +225,11 @@ public class BoardManager : MonoBehaviour {
     // Makes tiles around the current player's attackers selectable for a tile to be placed on them.
     public void PossibleTilePlacements(int playerID)
     {
-        foreach(Tile currTile in boardArray)
+        foreach(Tile currTile in BoardArray)
         {
             if(currTile.Attacker && currTile.Attacker.team == playerID)
             {
-                foreach(Tile adjacentTile in boardArray)
+                foreach(Tile adjacentTile in BoardArray)
                 {
                     if (adjacentTile.Status == Tile.TileStatus.EMPTY)
                     {
@@ -246,11 +259,11 @@ public class BoardManager : MonoBehaviour {
     // Allows tiles that are not base tiles around the attackers to be breakable.
     public void ShowBreakableTiles(int playerID)
     {
-        foreach(Tile currTile in boardArray)
+        foreach(Tile currTile in BoardArray)
         {
             if(currTile.Attacker && currTile.Attacker.team == playerID)
             {
-                foreach(Tile adjacentTile in boardArray)
+                foreach(Tile adjacentTile in BoardArray)
                 {
                     if (adjacentTile.Status != Tile.TileStatus.BASE1 || adjacentTile.Status != Tile.TileStatus.BASE2)
                     {
@@ -280,7 +293,7 @@ public class BoardManager : MonoBehaviour {
     public void RestartBoard()
     {
         // TODO: Rewrite this for current board setup
-        // foreach(Tile tile in boardArray)
+        // foreach(Tile tile in BoardArray)
         // {
         //     if (tile.Attacker)
         //     {
@@ -301,7 +314,7 @@ public class BoardManager : MonoBehaviour {
     // Clears the board, toggles off all selected tiles and sets breakable tiles to non-breakable.
     public void ClearBoard()
     {
-        foreach(Tile tile in boardArray)
+        foreach(Tile tile in BoardArray)
         {
             if (tile.IsSelected)
                 tile.ToggleSelectable();
@@ -311,10 +324,6 @@ public class BoardManager : MonoBehaviour {
     }
 #endregion
 
-    public Tile[,] GetBoardArray()
-    {
-        return boardArray;
-    }
 
     public List<PlayerHand> GetHands()
     {

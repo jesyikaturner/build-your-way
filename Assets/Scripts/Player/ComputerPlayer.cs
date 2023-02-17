@@ -19,8 +19,10 @@ public class ComputerPlayer : MonoBehaviour, IController {
     private SoundManager soundManager;
     private PlayerHand compHand;
     [SerializeField] private List<Tile> possibleMoves, goalTiles;
-    private int playerID;
+    public int playerID;
     private int invalidMoveCounter;
+
+    public int PlayerID { get; private set; }
 
     public bool isActive = false;
 
@@ -35,6 +37,8 @@ public class ComputerPlayer : MonoBehaviour, IController {
         possibleMoves = new List<Tile>();
         goalTiles = new List<Tile>();
 
+        PlayerID = playerID;
+
         // compHand = boardManager.GetHands()[playerID-1];
 
         // SetupBaseTiles();
@@ -48,7 +52,7 @@ public class ComputerPlayer : MonoBehaviour, IController {
     // Getting the tiles that the attackers need to move to.
     private void SetupBaseTiles()
     {
-        // foreach (Tile cell in boardManager.GetBoardArray())
+        // foreach (Tile cell in boardManager.BoardArray)
         // {
         //     if (playerID == 2 && cell.GetTileInfo().CheckState(TileInfo.TileState.BASE1))
         //         goalTiles.Add(cell);
@@ -62,7 +66,7 @@ public class ComputerPlayer : MonoBehaviour, IController {
     {
         if (possibleMoves.Count == 0)
         {
-            Debug.LogFormat("{0}: Increasing invalidMoveCounter by 1. Counter at {1}", playerID, invalidMoveCounter);
+            Debug.LogFormat("{0}: Increasing invalidMoveCounter by 1. Counter at {1}", PlayerID, invalidMoveCounter);
             invalidMoveCounter++;
 
             selected = null;
@@ -76,7 +80,7 @@ public class ComputerPlayer : MonoBehaviour, IController {
     {
         // int choice = Random.Range(1, 4);
 
-        // timer = timer > 0f ? timer -= Time.deltaTime : 0f;
+        timer = timer > 0f ? timer -= Time.deltaTime : 0f;
 
         // if (boardManager.GetCurrPlayer() != playerID || boardManager.IsPaused() || timer > 0f)
         //     choice = 0;
@@ -103,6 +107,11 @@ public class ComputerPlayer : MonoBehaviour, IController {
         // }
     }
 
+    private float GetDistanceBetween(Tile place1, Tile place2)
+    {
+        return Vector3.Distance(place1.transform.position,place2.transform.position);
+    }
+
     /* Goes through the steps of random selecting, add the possible 
      * moves to a list then random selecting one of those for the tile to be moved to.
      */
@@ -121,7 +130,7 @@ public class ComputerPlayer : MonoBehaviour, IController {
         // boardManager.PossibleTilePlacements(2);
 
         // Debug.LogFormat("{0}: Adding selected tiles to possibleMoves array.", playerID);
-        // foreach (Tile cell in boardManager.GetBoardArray())
+        // foreach (Tile cell in boardManager.BoardArray)
         // {
         //     if (cell.isSelected)
         //     {
@@ -201,7 +210,7 @@ public class ComputerPlayer : MonoBehaviour, IController {
 
         // // grabs all the attacker pieces that aren't on the goal tiles
         // Debug.LogFormat("{0}: Getting all attacker pieces that aren't on goal tiles.", playerID);
-        // foreach (Tile cell in boardManager.GetBoardArray())
+        // foreach (Tile cell in boardManager.BoardArray)
         // {
         //     if(cell.GetAttacker() && cell.GetAttacker().Team == playerID)
         //     {
@@ -240,7 +249,7 @@ public class ComputerPlayer : MonoBehaviour, IController {
         // possibleMoves.Clear();
         // boardManager.PossibleAttackerMoves(selected);
 
-        // foreach (Tile cell in boardManager.GetBoardArray())
+        // foreach (Tile cell in boardManager.BoardArray)
         // {
         //     if(cell.isSelected)
         //         possibleMoves.Add(cell);
@@ -311,7 +320,7 @@ public class ComputerPlayer : MonoBehaviour, IController {
         // boardManager.ShowBreakableTiles();
 
         // Debug.LogFormat("{0}: Adding all breakable tiles to possibleMoves array.", playerID);
-        // foreach (Tile cell in boardManager.GetBoardArray())
+        // foreach (Tile cell in boardManager.BoardArray)
         // {
         //     if (cell.isBreakable)
         //     {

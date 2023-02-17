@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour
     // public bool CheckForWinner(int playerID)
     // {
     //     int counter = 0;
-    //     foreach (Tile cell in boardManager.GetBoardArray())
+    //     foreach (Tile cell in boardManager.BoardArray)
     //     {
     //         if (cell.team != playerID && cell.team != 0)
     //         {

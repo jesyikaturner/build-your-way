@@ -5,7 +5,11 @@ public class Tile : MonoBehaviour
 {
     public enum TileStatus
     {
-        WALK, BLOCK, BASE1, BASE2, EMPTY
+        EMPTY, 
+        WALK, 
+        BLOCK, 
+        BASE1, 
+        BASE2
     }
     public TileStatus Status { get; private set; }
     public int Team { get; set; }

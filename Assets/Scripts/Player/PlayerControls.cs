@@ -10,8 +10,13 @@ public class PlayerControls : MonoBehaviour, IController {
     // Private Variables
     private BoardManager boardManager;
     private SoundManager soundManager;
-    private int playerID;
+    public int playerID;
     private float timer = 0;
+
+    public bool IsActive { get; private set; }
+    public int PlayerID { get; private set; }
+
+    private float breakTileTimer = 0f;
 
     public bool isActive = false;
 
@@ -22,6 +27,7 @@ public class PlayerControls : MonoBehaviour, IController {
         this.boardManager = boardManager;
         this.soundManager = soundManager;
         this.playerID = playerID;
+        PlayerID = playerID;
     }
 	
 	// Update is called once per frame
@@ -30,6 +36,7 @@ public class PlayerControls : MonoBehaviour, IController {
         if(isActive)
         {
             MouseControls();
+            // TODO: Touch Controls
             //KeyboardControls();
         }
 	}
@@ -50,7 +57,7 @@ public class PlayerControls : MonoBehaviour, IController {
 				temp = hit.collider.gameObject.GetComponent<Tile>();
 		}
 
-        boardManager.ShowBreakableTiles(playerID);
+        boardManager.ShowBreakableTiles(PlayerID);
         if (Input.GetMouseButtonUp(0))
         {
             if (!temp)
@@ -93,7 +100,7 @@ public class PlayerControls : MonoBehaviour, IController {
         if (selected && selected.Attacker)
             return false;
 
-		if(playerID == place.playerHand)
+		if(PlayerID == place.playerHand)
 		{
 			// if the player doesn't have anything selected from their hand
             // make what they clicked on, the selected tile.
@@ -101,7 +108,7 @@ public class PlayerControls : MonoBehaviour, IController {
 			{
 				selected = place;
                 selected.ToggleSelectable();
-                boardManager.PossibleTilePlacements(playerID);
+                boardManager.PossibleTilePlacements(PlayerID);
                 Debug.Log("Player has selected a hand tile.");
                 // PLAY SOUND
                 soundManager.PlaySound("SELECT");
@@ -159,7 +166,7 @@ public class PlayerControls : MonoBehaviour, IController {
          * current player playing. Then if the player doesn't have a tile selected, it selects that
          * tile. If the place clicks the same place again, it deselects the tile.
          */ 
-        if (place.Attacker && playerID == place.Attacker.Team)
+        if (place.Attacker && PlayerID == place.Attacker.Team)
         {
             if (!selected)
             {
