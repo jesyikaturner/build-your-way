@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class PlayerControls : MonoBehaviour, IPlayer {
+public class PlayerControls : MonoBehaviour, IController {
 
     // Public Variables for the Inspector
     [SerializeField]
@@ -10,27 +10,40 @@ public class PlayerControls : MonoBehaviour, IPlayer {
     // Private Variables
     private BoardManager boardManager;
     private SoundManager soundManager;
-    private int playerID;
+    public int playerID;
     private float timer = 0;
+
+    public bool IsActive { get; private set; }
+    public int PlayerID { get; private set; }
+
+    private float breakTileTimer = 0f;
+
+    public bool isActive = false;
 
     // Use this for initialization
 
-    public void SetupPlayerControls(SoundManager soundManager, BoardManager boardManager, int playerID)
+    public void SetupControls(SoundManager soundManager, BoardManager boardManager, int playerID)
     {
         this.boardManager = boardManager;
         this.soundManager = soundManager;
         this.playerID = playerID;
+        PlayerID = playerID;
     }
 	
 	// Update is called once per frame
 	void Update () 
 	{
-        if(!boardManager.IsPaused() && playerID == boardManager.GetCurrPlayer())
+        if(isActive)
         {
             MouseControls();
+            // TODO: Touch Controls
             //KeyboardControls();
         }
 	}
+    public void ToggleActive()
+    {
+        isActive = !isActive;
+    }
 
     private void MouseControls()
 	{
@@ -44,7 +57,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 				temp = hit.collider.gameObject.GetComponent<Tile>();
 		}
 
-        boardManager.ShowBreakableTiles();
+        boardManager.ShowBreakableTiles(PlayerID);
         if (Input.GetMouseButtonUp(0))
         {
             if (!temp)
@@ -61,7 +74,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
         {
             if (!temp)
                 return;
-            if (temp.GetAttacker() == null)
+            if (temp.Attacker == null)
             {
                 if (temp.isBreakable)
                     timer += Time.deltaTime;
@@ -84,10 +97,10 @@ public class PlayerControls : MonoBehaviour, IPlayer {
         if (place == null)
             return false;
 
-        if (selected && selected.GetAttacker())
+        if (selected && selected.Attacker)
             return false;
 
-		if(playerID == place.playerHand)
+		if(PlayerID == place.playerHand)
 		{
 			// if the player doesn't have anything selected from their hand
             // make what they clicked on, the selected tile.
@@ -95,7 +108,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 			{
 				selected = place;
                 selected.ToggleSelectable();
-                boardManager.PossibleTilePlacements();
+                boardManager.PossibleTilePlacements(PlayerID);
                 Debug.Log("Player has selected a hand tile.");
                 // PLAY SOUND
                 soundManager.PlaySound("SELECT");
@@ -117,10 +130,10 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 		else
 		{
             // Move the tile from the player's hand.
-            if (place.GetState("EMPTY") && place.isSelected)
+            if (place.Status == Tile.TileStatus.EMPTY && place.IsSelected)
             {
-                place.SetState(selected.GetState());
-                selected.SetState("EMPTY");
+                place.SetStatus(selected.Status);
+                selected.SetStatus(Tile.TileStatus.EMPTY);
                 boardManager.ClearBoard();
                 if(boardManager.SubtractMove(1))
                 {
@@ -153,12 +166,12 @@ public class PlayerControls : MonoBehaviour, IPlayer {
          * current player playing. Then if the player doesn't have a tile selected, it selects that
          * tile. If the place clicks the same place again, it deselects the tile.
          */ 
-        if (place.GetAttacker() && playerID == place.GetAttacker().Team)
+        if (place.Attacker && PlayerID == place.Attacker.Team)
         {
             if (!selected)
             {
                 selected = place;
-                selected.GetAttacker().ToggleSelect();
+                selected.Attacker.ToggleSelect();
                 boardManager.PossibleAttackerMoves(selected);
                 // PLAY SOUND
                 soundManager.PlaySound("SELECT");
@@ -168,7 +181,7 @@ public class PlayerControls : MonoBehaviour, IPlayer {
                 if(selected == place)
                 {
                     boardManager.ClearBoard();
-                    selected.GetAttacker().ToggleSelect();
+                    selected.Attacker.ToggleSelect();
                     selected = null;
                     // PLAY SOUND
                     soundManager.PlaySound("SELECT");
@@ -182,9 +195,9 @@ public class PlayerControls : MonoBehaviour, IPlayer {
              * has selected a place for the attacker to move to. First it makes sure that the tile
              * is a valid move, then it moves/ sets the attacker to the new tile.
              */ 
-            if (selected && selected.GetAttacker())
+            if (selected && selected.Attacker)
             {
-                if (place.isSelected)
+                if (place.IsSelected)
                 {
                     boardManager.SetAttacker(selected, place);
                     boardManager.ClearBoard();
@@ -208,11 +221,11 @@ public class PlayerControls : MonoBehaviour, IPlayer {
 
     public bool DestroyTile(Tile place)
     {
-        if(place.GetState("WALK"))
+        if(place.Status == Tile.TileStatus.WALK)
         {
             if (boardManager.SubtractMove(1))
             {
-                place.SetState("EMPTY");
+                place.SetStatus(Tile.TileStatus.EMPTY);
                 // PLAY SUCCESS SOUND
                 soundManager.PlaySound("SELECT");
             }
@@ -223,11 +236,11 @@ public class PlayerControls : MonoBehaviour, IPlayer {
             }
 
         }
-        if(place.GetState("BLOCK"))
+        if(place.Status == Tile.TileStatus.BLOCK)
         {
             if (boardManager.SubtractMove(2))
             {
-                place.SetState("EMPTY");
+                place.SetStatus(Tile.TileStatus.EMPTY);
                 // PLAY SUCCESS SOUND
                 soundManager.PlaySound("SELECT");
             }

@@ -1,0 +1,66 @@
+﻿{
+	"boardData": [
+		{
+			"state": "BASE1",
+			"team": 1,
+			"x": 0,
+			"y": 0
+		},
+		{
+			"state": "BASE1",
+			"team": 1,
+			"x": 1,
+			"y": 0
+		},
+		{
+			"state": "BASE1",
+			"team": 1,
+			"x": 2,
+			"y": 2
+		},
+
+		{
+			"state": "BASE2",
+			"team": 2,
+			"x": 3,
+			"y": 3
+		},
+		{
+			"state": "BASE2",
+			"team": 2,
+			"x": 4,
+			"y": 5
+		},
+		{
+			"state": "BASE2",
+			"team": 2,
+			"x": 5,
+			"y": 5
+		},
+
+		{
+			"state": "BLOCK",
+			"team": 0,
+			"x": 4,
+			"y": 1
+		},
+		{
+			"state": "BLOCK",
+			"team": 0,
+			"x": 3,
+			"y": 2
+		},
+		{
+			"state": "BLOCK",
+			"team": 0,
+			"x": 2,
+			"y": 3
+		},
+		{
+			"state": "BLOCK",
+			"team": 0,
+			"x": 1,
+			"y": 4
+		}
+	]
+}

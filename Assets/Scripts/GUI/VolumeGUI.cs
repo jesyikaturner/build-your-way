@@ -14,7 +14,7 @@ public class VolumeGUI : MonoBehaviour {
     void Start () {
         // https://answers.unity.com/questions/1111955/how-do-i-make-a-change-a-volume-with-a-slider.html
         soundSlider.value = sm.soundSource.volume;
-        soundSlider.value = sm.musicSource.volume;
+        musicSlider.value = sm.musicSource.volume;
     }
 
     public void SetSoundVolume()

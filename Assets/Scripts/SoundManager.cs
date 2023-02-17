@@ -20,6 +20,9 @@ public class SoundManager : MonoBehaviour {
 
     public void PlaySound(string sound)
     {
+        float random = Random.Range(1, 4);
+        soundSource.pitch = random;
+
         switch (sound)
         {
             case "ERROR":
@@ -41,8 +44,10 @@ public class SoundManager : MonoBehaviour {
         switch (music)
         {
             case 1:
+                musicSource.clip = bgMusic1;
                 break;
             case 2:
+                musicSource.clip = bgMusic2;
                 break;
             case 3:
                 break;
@@ -51,6 +56,8 @@ public class SoundManager : MonoBehaviour {
                 break;
 
         }
+        if (!musicSource.isPlaying)
+            musicSource.Play();
     }
 
     public void SetVolume(string name, float maxValue, float value)

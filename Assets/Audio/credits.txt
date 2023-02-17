@@ -1,0 +1,9 @@
+Music from https://filmmusic.io
+"Werq" by Kevin MacLeod (https://incompetech.com)
+License: CC BY (http://creativecommons.org/licenses/by/4.0/)
+
+So you have to specify the author in your project:
+Music from https://filmmusic.io
+"Inspired" by Kevin MacLeod (https://incompetech.com)
+License: CC BY (http://creativecommons.org/licenses/by/4.0/)
+
